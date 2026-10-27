@@ -1,0 +1,6 @@
+{
+  "name": "storyflixAI",
+  "description": "Turn ideas and scripts into viral 9:16 vertical videos and cartoon stories for TikTok, Instagram Reels, and YouTube Shorts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

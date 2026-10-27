@@ -1,0 +1,116 @@
+export type VideoFormat =
+  | 'viral_facts'
+  | 'cartoon_story'
+  | 'reddit_story'
+  | 'conspiracy_mystery'
+  | 'motivation_mindset'
+  | 'what_if'
+  | 'comedy_skit'
+  | 'tech_future';
+
+export type VideoTone =
+  | 'fast_viral'
+  | 'dramatic_suspense'
+  | 'funny_cartoon'
+  | 'dark_mystery'
+  | 'motivational'
+  | 'absurd_meme';
+
+export type CameraEffect =
+  | 'zoom_in'
+  | 'zoom_out'
+  | 'pan_left'
+  | 'pan_right'
+  | 'shake'
+  | 'flash_cut';
+
+export type SoundEffectCue =
+  | 'vine_boom'
+  | 'whoosh'
+  | 'sub_drop'
+  | 'cash_register'
+  | 'chime'
+  | 'record_scratch'
+  | 'alert_stinger'
+  | 'none';
+
+export type CharacterEmotion =
+  | 'neutral'
+  | 'shocked'
+  | 'heroic'
+  | 'laughing'
+  | 'scheming'
+  | 'thinking'
+  | 'angry'
+  | 'crying'
+  | 'confident';
+
+export type CartoonStyle =
+  | 'pixar_3d'
+  | 'anime_manga'
+  | 'comic_book'
+  | 'chibi_fantasy'
+  | 'cyberpunk_retro'
+  | 'claymation';
+
+export type CaptionPreset =
+  | 'hormozi_yellow'
+  | 'neon_beast'
+  | 'cartoon_comic'
+  | 'minimal_glass'
+  | 'danger_red'
+  | 'cyber_violet';
+
+export interface Scene {
+  id: string;
+  sceneNumber: number;
+  durationSec: number;
+  narration: string;
+  visualDescription: string;
+  visualStyleKeywords?: string;
+  imageUrl?: string;
+  bgTheme?: string;
+  cameraEffect: CameraEffect;
+  soundEffectCue: SoundEffectCue;
+  overlayBadge: string;
+  emojiAccent: string;
+  characterEmotion?: CharacterEmotion;
+  dialogueSpeaker?: string;
+  audioUrl?: string; // Generated TTS audio
+  words?: { word: string; start: number; end: number }[];
+}
+
+export interface Project {
+  id: string;
+  title: string;
+  viralHook: string;
+  tiktokCaption: string;
+  hashtags: string[];
+  format: VideoFormat;
+  tone: VideoTone;
+  cartoonStyle: CartoonStyle;
+  captionPreset: CaptionPreset;
+  captionYPercent: number; // Vertical position in % from top (e.g. 70%)
+  captionFontSize: number;
+  autoEmojis: boolean;
+  bgmTrack: string; // 'phonk_drift' | 'lo_fi_chill' | 'suspense_dark' | 'upbeat_pop' | 'cartoon_quirky' | 'cyber_synth' | 'none'
+  bgmVolume: number; // 0 to 1
+  voiceVolume: number; // 0 to 1
+  voiceSpeaker: string; // 'Kore' | 'Puck' | 'Fenrir' | 'Zephyr' | 'Charon'
+  scenes: Scene[];
+  characterName?: string;
+  characterAvatar?: string;
+}
+
+export interface CharacterPreset {
+  id: string;
+  name: string;
+  tagline: string;
+  style: CartoonStyle;
+  avatarSvg: string;
+  colorScheme: {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+}
