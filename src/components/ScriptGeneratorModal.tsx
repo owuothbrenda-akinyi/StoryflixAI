@@ -9,7 +9,8 @@ import {
   Flame,
   Lightbulb,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Video
 } from 'lucide-react';
 import { CartoonStyle, Project, VideoFormat, VideoTone } from '../types/studio';
 
@@ -130,9 +131,31 @@ export const ScriptGeneratorModal: React.FC<ScriptGeneratorModalProps> = ({
               rows={3}
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                  e.preventDefault();
+                  handleGenerate();
+                }
+              }}
               placeholder="e.g. 5 psychological secrets that make people trust you instantly, or a funny animated cartoon about a wizard whose spells turn everything into cheese..."
               className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-3.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 resize-none transition-all"
             />
+          </div>
+
+          {/* Quick Generate Video Action Bar below Prompt */}
+          <div className="flex items-center justify-between gap-2 p-2 bg-zinc-950/70 border border-zinc-800/80 rounded-2xl">
+            <span className="text-[11px] text-zinc-400 font-medium px-2">
+              Tip: Press <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono text-[10px] border border-zinc-700">⌘/Ctrl + Enter</kbd> to generate
+            </span>
+            <button
+              type="button"
+              onClick={handleGenerate}
+              disabled={isLoading || !topic.trim()}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-violet-600 via-rose-500 to-amber-500 text-white shadow-lg shadow-rose-500/25 hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 cursor-pointer shrink-0"
+            >
+              <Video className="w-4 h-4 text-white fill-white/20" />
+              <span>{isLoading ? 'Generating...' : 'Generate Video'}</span>
+            </button>
           </div>
 
           {/* Prompt Inspiration Pills */}
@@ -296,8 +319,8 @@ export const ScriptGeneratorModal: React.FC<ScriptGeneratorModalProps> = ({
             disabled={isLoading || !topic.trim()}
             className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 via-rose-500 to-amber-500 text-white shadow-lg shadow-violet-500/25 hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
           >
-            <Sparkles className="w-4 h-4" />
-            <span>{isLoading ? 'Generating Storyboard...' : 'Generate Viral Script'}</span>
+            <Video className="w-4 h-4 text-white fill-white/20" />
+            <span>{isLoading ? 'Generating Video...' : 'Generate Video'}</span>
           </button>
         </div>
       </div>

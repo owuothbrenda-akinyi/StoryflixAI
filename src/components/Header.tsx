@@ -2,6 +2,7 @@ import React from 'react';
 import { Video, Sparkles, Download, Layers, Wand2, PlayCircle, Palette, Flame } from 'lucide-react';
 import { Project, VideoFormat } from '../types/studio';
 import { PRESET_PROJECTS } from '../data/presetTemplates';
+import { PWAInstallButton } from './PWAInstallButton';
 
 interface HeaderProps {
   project: Project;
@@ -103,13 +104,16 @@ export const Header: React.FC<HeaderProps> = ({
           <span>Optimize Hook</span>
         </button>
 
-        {/* AI Script & Storyboard Generator Modal Trigger */}
+        {/* PWA Install / Add to Home Screen Button */}
+        <PWAInstallButton />
+
+        {/* Generate Video Modal Trigger */}
         <button
           onClick={onOpenGenerator}
-          className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-indigo-600/20 hover:brightness-110 transition-all cursor-pointer"
+          className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 via-rose-500 to-amber-500 text-white shadow-md shadow-violet-600/25 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
         >
-          <Wand2 className="w-3.5 h-3.5" />
-          <span>AI Script Generator</span>
+          <Video className="w-3.5 h-3.5" />
+          <span>Generate Video</span>
         </button>
 
         {/* Export Video Button */}

@@ -13,7 +13,8 @@ import {
   Layers,
   Wand2,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Video
 } from 'lucide-react';
 import { CartoonStyle, Project, Scene, VideoFormat, VideoTone } from './types/studio';
 import { PRESET_PROJECTS, CHARACTER_PRESETS } from './data/presetTemplates';
@@ -27,6 +28,7 @@ import { CartoonStudio } from './components/CartoonStudio';
 import { ScriptGeneratorModal } from './components/ScriptGeneratorModal';
 import { HookOptimizerModal } from './components/HookOptimizerModal';
 import { ExportModal } from './components/ExportModal';
+import { OfflineIndicator } from './components/OfflineIndicator';
 
 export default function App() {
   const [project, setProject] = useState<Project>(PRESET_PROJECTS[0]);
@@ -221,7 +223,26 @@ export default function App() {
       {/* Main Studio Body: Player + Inspector */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Left / Center Area: 9:16 Phone Canvas Player */}
-        <div className="flex-1 flex flex-col items-center justify-center bg-zinc-950/60 p-2 sm:p-6 border-b lg:border-b-0 lg:border-r border-zinc-850">
+        <div className="flex-1 flex flex-col items-center justify-center bg-zinc-950/60 p-2 sm:p-4 border-b lg:border-b-0 lg:border-r border-zinc-850">
+          {/* Quick Prompt Bar with Generate Video Icon */}
+          <div className="w-full max-w-[360px] sm:max-w-[420px] mb-3 flex items-center gap-2 bg-zinc-900/90 border border-zinc-800 rounded-2xl p-1.5 shadow-xl backdrop-blur-md">
+            <input
+              type="text"
+              placeholder="Prompt a story, idea, or viral hook..."
+              onClick={() => setIsGeneratorOpen(true)}
+              onFocus={() => setIsGeneratorOpen(true)}
+              readOnly
+              className="flex-1 bg-transparent px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none cursor-pointer"
+            />
+            <button
+              onClick={() => setIsGeneratorOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-violet-600 via-rose-500 to-amber-500 text-white shadow-md shadow-rose-500/25 hover:brightness-110 active:scale-95 transition-all cursor-pointer shrink-0"
+            >
+              <Video className="w-3.5 h-3.5" />
+              <span>Generate Video</span>
+            </button>
+          </div>
+
           <PhonePlayer
             project={project}
             selectedSceneIndex={selectedSceneIndex}
@@ -347,6 +368,9 @@ export default function App() {
           <span>{toastMessage}</span>
         </div>
       )}
+
+      {/* Offline Connectivity Notification */}
+      <OfflineIndicator />
     </div>
   );
 }
