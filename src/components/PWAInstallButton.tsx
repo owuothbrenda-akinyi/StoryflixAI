@@ -38,9 +38,11 @@ export const PWAInstallButton: React.FC = () => {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center shadow-md shadow-emerald-500/20">
-                  <Smartphone className="w-4 h-4 text-white" />
-                </div>
+                <img
+                  src="/icon.svg"
+                  alt="storyflixAI icon"
+                  className="w-8 h-8 rounded-xl shadow-md shadow-blue-500/20"
+                />
                 <div>
                   <h3 className="font-black text-sm text-white">Add storyflixAI to Home Screen</h3>
                   <p className="text-[11px] text-zinc-400">Install as a full-screen native mobile app</p>

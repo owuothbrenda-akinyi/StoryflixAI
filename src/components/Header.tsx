@@ -26,9 +26,11 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Brand & Project Info */}
       <div className="flex items-center gap-4 sm:gap-6">
         <div className="flex flex-col items-center justify-center text-center group cursor-pointer">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-violet-600 flex items-center justify-center shadow-lg shadow-rose-500/25 mb-0.5 group-hover:scale-105 transition-transform">
-            <Video className="w-4 h-4 text-white" />
-          </div>
+          <img
+            src="/icon.svg"
+            alt="storyflixAI icon"
+            className="w-8 h-8 rounded-xl shadow-lg shadow-blue-500/25 mb-0.5 group-hover:scale-105 transition-transform ring-1 ring-white/10"
+          />
           <div className="flex items-center gap-1.5">
             <span className="font-black text-xs sm:text-sm tracking-tight bg-gradient-to-r from-white via-zinc-100 to-zinc-400 bg-clip-text text-transparent">
               storyflix<span className="text-rose-500">AI</span>
