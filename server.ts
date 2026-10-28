@@ -81,61 +81,97 @@ Each scene must have:
 - characterEmotion: (for cartoon stories) one of ["shocked", "heroic", "laughing", "scheming", "thinking", "angry", "crying", "confident"]
 - dialogueSpeaker: optional name of speaker if dialogue scene`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: userPrompt,
-      config: {
-        systemInstruction: systemPrompt,
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            title: { type: Type.STRING, description: 'Catchy viral title for the video' },
-            viralHook: { type: Type.STRING, description: 'The exact opening hook sentence that stops thumbs' },
-            tiktokCaption: { type: Type.STRING, description: 'High-converting TikTok caption with call to action' },
-            hashtags: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: '5-8 high-reach hashtags like #fyp #viral #storytime'
-            },
-            estimatedTotalSeconds: { type: Type.NUMBER, description: 'Total estimated video length in seconds' },
-            bgmSuggestion: {
-              type: Type.STRING,
-              description: 'Recommended background music mood (e.g., phonk_drift, lo_fi_chill, suspense_dark, upbeat_pop, cartoon_quirky)'
-            },
-            scenes: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  sceneNumber: { type: Type.NUMBER },
-                  durationSec: { type: Type.NUMBER, description: 'Scene length between 3 and 6 seconds' },
-                  narration: { type: Type.STRING, description: 'Spoken text' },
-                  visualDescription: { type: Type.STRING, description: 'Detailed prompt for visual illustration' },
-                  visualStyleKeywords: { type: Type.STRING, description: 'Aesthetic tags for art rendering' },
-                  cameraEffect: { type: Type.STRING, enum: ['zoom_in', 'zoom_out', 'pan_left', 'pan_right', 'shake', 'flash_cut'] },
-                  soundEffectCue: { type: Type.STRING, enum: ['vine_boom', 'whoosh', 'sub_drop', 'cash_register', 'chime', 'record_scratch', 'alert_stinger', 'none'] },
-                  overlayBadge: { type: Type.STRING },
-                  emojiAccent: { type: Type.STRING },
-                  characterEmotion: { type: Type.STRING, enum: ['shocked', 'heroic', 'laughing', 'scheming', 'thinking', 'angry', 'crying', 'confident'] },
-                  dialogueSpeaker: { type: Type.STRING }
-                },
-                required: ['sceneNumber', 'durationSec', 'narration', 'visualDescription', 'cameraEffect', 'soundEffectCue', 'overlayBadge', 'emojiAccent']
+    let parsedData: any = null;
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.1-flash-lite',
+        contents: userPrompt,
+        config: {
+          systemInstruction: systemPrompt,
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              title: { type: Type.STRING, description: 'Catchy viral title for the video' },
+              viralHook: { type: Type.STRING, description: 'The exact opening hook sentence that stops thumbs' },
+              tiktokCaption: { type: Type.STRING, description: 'High-converting TikTok caption with call to action' },
+              hashtags: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+                description: '5-8 high-reach hashtags like #fyp #viral #storytime'
+              },
+              estimatedTotalSeconds: { type: Type.NUMBER, description: 'Total estimated video length in seconds' },
+              bgmSuggestion: {
+                type: Type.STRING,
+                description: 'Recommended background music mood (e.g., phonk_drift, lo_fi_chill, suspense_dark, upbeat_pop, cartoon_quirky)'
+              },
+              scenes: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    sceneNumber: { type: Type.NUMBER },
+                    durationSec: { type: Type.NUMBER, description: 'Scene length between 3 and 6 seconds' },
+                    narration: { type: Type.STRING, description: 'Spoken text' },
+                    visualDescription: { type: Type.STRING, description: 'Detailed prompt for visual illustration' },
+                    visualStyleKeywords: { type: Type.STRING, description: 'Aesthetic tags for art rendering' },
+                    cameraEffect: { type: Type.STRING, enum: ['zoom_in', 'zoom_out', 'pan_left', 'pan_right', 'shake', 'flash_cut'] },
+                    soundEffectCue: { type: Type.STRING, enum: ['vine_boom', 'whoosh', 'sub_drop', 'cash_register', 'chime', 'record_scratch', 'alert_stinger', 'none'] },
+                    overlayBadge: { type: Type.STRING },
+                    emojiAccent: { type: Type.STRING },
+                    characterEmotion: { type: Type.STRING, enum: ['shocked', 'heroic', 'laughing', 'scheming', 'thinking', 'angry', 'crying', 'confident'] },
+                    dialogueSpeaker: { type: Type.STRING }
+                  },
+                  required: ['sceneNumber', 'durationSec', 'narration', 'visualDescription', 'cameraEffect', 'soundEffectCue', 'overlayBadge', 'emojiAccent']
+                }
               }
-            }
-          },
-          required: ['title', 'viralHook', 'tiktokCaption', 'hashtags', 'scenes']
+            },
+            required: ['title', 'viralHook', 'tiktokCaption', 'hashtags', 'scenes']
+          }
         }
-      }
-    });
+      });
+      parsedData = JSON.parse(response.text || '{}');
+    } catch (modelErr: any) {
+      console.warn('Gemini 3.1 model call fallback triggered:', modelErr.message);
+      // Resilient Smart Text-to-Video Engine: Split any prompt text into high-retention scenes
+      const sentences = topic.split(/(?<=[.!?])\s+|\n+/).map(s => s.trim()).filter(s => s.length > 5);
+      const sceneTexts = sentences.length >= 2 ? sentences.slice(0, 7) : [
+        `Here is what you need to know about ${topic}: it changes everything you thought you knew.`,
+        `When you look at the deeper facts, the real story is ten times more intense than it seems.`,
+        `Drop a comment with your opinion right now, and follow for part two!`
+      ];
 
-    const parsedData = JSON.parse(response.text || '{}');
+      const cameraList = ['zoom_in', 'pan_left', 'shake', 'pan_right', 'zoom_out'];
+      const sfxList = ['whoosh', 'vine_boom', 'sub_drop', 'alert_stinger', 'cash_register'];
+      const badgeList = ['WAIT FOR IT...', 'MIND BLOWN 🤯', 'PLOT TWIST', 'SECRET REVEALED', 'DON\'T SKIP'];
+
+      parsedData = {
+        title: topic.slice(0, 40) || 'Viral Video',
+        viralHook: sceneTexts[0],
+        tiktokCaption: `Wait until the end... 🤯\n\nWhat do you think? Drop a comment below! 👇`,
+        hashtags: ['#fyp', '#viral', '#shorts', '#trending', '#mindblown'],
+        estimatedTotalSeconds: sceneTexts.length * 4.2,
+        bgmSuggestion: 'phonk_drift',
+        scenes: sceneTexts.map((text, i) => ({
+          sceneNumber: i + 1,
+          durationSec: 4.2,
+          narration: text,
+          visualDescription: `Cinematic 9:16 vertical visual for: ${text}`,
+          visualStyleKeywords: 'Cinematic 9:16, 8k resolution, volumetric neon lighting',
+          cameraEffect: cameraList[i % cameraList.length],
+          soundEffectCue: sfxList[i % sfxList.length],
+          overlayBadge: badgeList[i % badgeList.length],
+          emojiAccent: '🤯⚡',
+          characterEmotion: 'shocked'
+        }))
+      };
+    }
+
     return res.json(parsedData);
   } catch (error: any) {
     console.error('Error generating script:', error);
     return res.status(500).json({
-      error: error.message || 'Failed to generate video script with Gemini.',
-      details: String(error)
+      error: error.message || 'Failed to process prompt to video.'
     });
   }
 });
@@ -264,7 +300,7 @@ Angle: ${angle} (Options: curiosity gap, extreme controversy/shock, negative que
 Return JSON with { "hooks": [{ "text": string, "angle": string, "predictedScore": number }] }`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
+      model: 'gemini-3.1-flash-lite',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',

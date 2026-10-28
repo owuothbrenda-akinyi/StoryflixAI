@@ -10,9 +10,15 @@ import {
   Sparkles,
   CheckCircle2,
   Music,
-  Zap
+  Zap,
+  Type,
+  Eye,
+  EyeOff,
+  RefreshCw,
+  Wand2
 } from 'lucide-react';
-import { Scene, Project } from '../types/studio';
+import { Scene, Project, SubtitleBlock } from '../types/studio';
+import { generateAutoCaptions } from '../utils/autoCaptionGenerator';
 
 interface SceneTimelineProps {
   project: Project;
@@ -108,6 +114,23 @@ export const SceneTimeline: React.FC<SceneTimelineProps> = ({
     onSelectScene(index + 1);
   };
 
+  // Auto-Caption generation from narration text
+  const handleAutoCaption = () => {
+    const blocks = generateAutoCaptions(scenes, {
+      wordsPerBlock: 3,
+      timingOffsetSec: project.captionTimingOffsetSec || 0
+    });
+    onUpdateProject({
+      autoCaptionsEnabled: true,
+      subtitleBlocks: blocks
+    });
+  };
+
+  const subtitleBlocks =
+    project.subtitleBlocks && project.subtitleBlocks.length > 0
+      ? project.subtitleBlocks
+      : generateAutoCaptions(scenes);
+
   return (
     <div className="w-full bg-zinc-950/80 border-t border-zinc-800 p-3 sm:p-4 flex flex-col gap-2.5">
       {/* Timeline Controls Header */}
@@ -122,6 +145,16 @@ export const SceneTimeline: React.FC<SceneTimelineProps> = ({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
+          {/* Auto-Caption Generator Action */}
+          <button
+            onClick={handleAutoCaption}
+            className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-md shadow-rose-500/20 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+            title="Auto-generate timed subtitle blocks from narration text and overlay on timeline"
+          >
+            <Type className="w-3.5 h-3.5" />
+            <span>Auto-Caption</span>
+          </button>
+
           <button
             onClick={onGenerateAllVoices}
             disabled={isGeneratingVoices}
@@ -259,6 +292,86 @@ export const SceneTimeline: React.FC<SceneTimelineProps> = ({
           <Plus className="w-5 h-5 text-rose-400" />
           <span className="text-[11px] font-bold">New Scene</span>
         </button>
+      </div>
+
+      {/* Subtitle / Caption Overlay Track Layer */}
+      <div className="flex flex-col gap-2 pt-2 border-t border-zinc-800/80 bg-zinc-900/30 -mx-3 -mb-3 sm:-mx-4 sm:-mb-4 p-3 sm:px-4 rounded-b-2xl">
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-extrabold text-[11px] uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+              <Type className="w-3.5 h-3.5 text-amber-400" />
+              Subtitle Overlay Track Layer
+            </span>
+            <span className="text-[10px] text-zinc-400 font-mono bg-zinc-800/80 px-2 py-0.5 rounded-full border border-zinc-700/60">
+              {subtitleBlocks.length} timed blocks • Synced to Narration
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onUpdateProject({ autoCaptionsEnabled: !(project.autoCaptionsEnabled !== false) })}
+              className={`flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                project.autoCaptionsEnabled !== false
+                  ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20'
+                  : 'bg-zinc-800 text-zinc-400 border-zinc-700 hover:text-white'
+              }`}
+              title="Toggle Subtitle Overlay Layer on 9:16 Video Canvas"
+            >
+              {project.autoCaptionsEnabled !== false ? (
+                <>
+                  <Eye className="w-3 h-3 text-emerald-400" />
+                  <span>Overlay Active</span>
+                </>
+              ) : (
+                <>
+                  <EyeOff className="w-3 h-3 text-zinc-500" />
+                  <span>Overlay Hidden</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handleAutoCaption}
+              className="flex items-center gap-1 text-[11px] font-semibold text-amber-300 hover:text-amber-200 px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 transition-all cursor-pointer"
+              title="Re-generate and re-calculate timed subtitle blocks from scenes"
+            >
+              <RefreshCw className="w-3 h-3" />
+              <span>Re-Sync Captions</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Subtitle Blocks Ribbon */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+          {subtitleBlocks.map((block, bIdx) => {
+            const isBlockInSelectedScene = block.sceneIndex === selectedSceneIndex;
+
+            return (
+              <div
+                key={block.id || bIdx}
+                onClick={() => onSelectScene(block.sceneIndex)}
+                className={`shrink-0 px-3 py-2 rounded-xl border transition-all cursor-pointer flex flex-col gap-1 max-w-[210px] group ${
+                  isBlockInSelectedScene
+                    ? 'bg-amber-500/10 border-amber-500/60 ring-1 ring-amber-500/30 shadow-md shadow-amber-500/10'
+                    : 'bg-zinc-900/80 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-850'
+                }`}
+                title={`Scene ${block.sceneIndex + 1}: ${block.startSec}s - ${block.endSec}s`}
+              >
+                <div className="flex items-center justify-between text-[10px] font-mono">
+                  <span className="font-bold text-amber-400">
+                    {block.startSec.toFixed(1)}s – {block.endSec.toFixed(1)}s
+                  </span>
+                  <span className="text-zinc-500 group-hover:text-zinc-300 text-[9px] font-sans font-bold">
+                    Sc {block.sceneIndex + 1}
+                  </span>
+                </div>
+                <p className="text-xs text-white font-medium line-clamp-1 leading-snug">
+                  "{block.text}"
+                </p>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

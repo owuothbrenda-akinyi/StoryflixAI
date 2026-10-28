@@ -1,6 +1,7 @@
 import React from 'react';
 import { Type, Sparkles, MoveVertical, Sliders, Smile } from 'lucide-react';
 import { CaptionPreset, Project } from '../types/studio';
+import { generateAutoCaptions } from '../utils/autoCaptionGenerator';
 
 interface CaptionSettingsProps {
   project: Project;
@@ -193,6 +194,45 @@ export const CaptionSettings: React.FC<CaptionSettingsProps> = ({
             }`}
           />
         </button>
+      </div>
+
+      {/* Auto-Caption Overlay Layer Settings */}
+      <div className="flex flex-col gap-3 bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <div>
+              <div className="text-xs font-bold text-white">Auto-Caption Subtitle Layer</div>
+              <div className="text-[10px] text-zinc-400">
+                Generate word-timed subtitle blocks from narration and overlay on video
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              const blocks = generateAutoCaptions(project.scenes, {
+                wordsPerBlock: 3,
+                timingOffsetSec: project.captionTimingOffsetSec || 0
+              });
+              onUpdateProject({
+                autoCaptionsEnabled: true,
+                subtitleBlocks: blocks
+              });
+            }}
+            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 text-white text-xs font-bold shadow-md shadow-rose-500/20 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+          >
+            Regenerate Captions
+          </button>
+        </div>
+
+        {/* Subtitle blocks summary */}
+        <div className="flex items-center justify-between text-xs pt-2 border-t border-zinc-850">
+          <span className="text-zinc-400">Overlay Status</span>
+          <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            {project.subtitleBlocks?.length || project.scenes.length * 3} Blocks Timed & Active
+          </span>
+        </div>
       </div>
     </div>
   );

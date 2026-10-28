@@ -432,6 +432,8 @@ export class CanvasRenderer {
 
   // Viral Hormozi / MrBeast dynamic word-by-word bouncing captions
   private drawDynamicCaptions(scene: Scene, progress: number, project: Project) {
+    if (project.autoCaptionsEnabled === false) return;
+
     const ctx = this.ctx;
     const W = CanvasRenderer.WIDTH;
     const H = CanvasRenderer.HEIGHT;

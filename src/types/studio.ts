@@ -80,6 +80,15 @@ export interface Scene {
   words?: { word: string; start: number; end: number }[];
 }
 
+export interface SubtitleBlock {
+  id: string;
+  sceneIndex: number;
+  text: string;
+  startSec: number;
+  endSec: number;
+  words?: { word: string; start: number; end: number }[];
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -100,6 +109,9 @@ export interface Project {
   scenes: Scene[];
   characterName?: string;
   characterAvatar?: string;
+  autoCaptionsEnabled?: boolean;
+  subtitleBlocks?: SubtitleBlock[];
+  captionTimingOffsetSec?: number; // micro-timing adjustments
 }
 
 export interface CharacterPreset {

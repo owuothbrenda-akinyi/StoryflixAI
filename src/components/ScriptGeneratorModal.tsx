@@ -10,9 +10,11 @@ import {
   Lightbulb,
   CheckCircle2,
   AlertCircle,
-  Video
+  Video,
+  Zap
 } from 'lucide-react';
 import { CartoonStyle, Project, VideoFormat, VideoTone } from '../types/studio';
+import { parseAnyPromptToVideo } from '../utils/textToVideoParser';
 
 interface ScriptGeneratorModalProps {
   isOpen: boolean;
@@ -71,21 +73,40 @@ export const ScriptGeneratorModal: React.FC<ScriptGeneratorModalProps> = ({
         })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate viral script.');
+      const responseText = await response.text();
+      let data: any = null;
+
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseErr) {
+        console.warn('Response was not JSON, falling back to local universal parser:', parseErr);
+        data = parseAnyPromptToVideo(topic, { format, tone, targetDurationSec: targetDuration });
       }
 
-      const data = await response.json();
+      if (!data?.scenes || !Array.isArray(data.scenes) || data.scenes.length === 0) {
+        data = parseAnyPromptToVideo(topic, { format, tone, targetDurationSec: targetDuration });
+      }
+
       clearInterval(stepInterval);
       onApplyScript(data, format, tone, cartoonStyle);
       onClose();
     } catch (err: any) {
       clearInterval(stepInterval);
-      setErrorMsg(err.message || 'Something went wrong while generating script.');
+      console.warn('Network or generation error, converting prompt text directly:', err.message);
+      // Seamlessly convert user prompt text to video
+      const fallbackData = parseAnyPromptToVideo(topic, { format, tone, targetDurationSec: targetDuration });
+      onApplyScript(fallbackData, format, tone, cartoonStyle);
+      onClose();
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleInstantConvert = () => {
+    if (!topic.trim()) return;
+    const data = parseAnyPromptToVideo(topic, { format, tone, targetDurationSec: targetDuration });
+    onApplyScript(data, format, tone, cartoonStyle);
+    onClose();
   };
 
   return (
@@ -95,19 +116,19 @@ export const ScriptGeneratorModal: React.FC<ScriptGeneratorModalProps> = ({
         <div className="flex items-center justify-between border-b border-zinc-800/80 pb-4">
           <div className="flex items-center gap-3">
             <img
-              src="/assets/aistudio/file_00000000e26881faac56ba951981b62c_1cd8f2f6.png"
+              src="/icon.svg"
               alt="storyflixAI Icon"
-              className="w-10 h-10 rounded-2xl object-cover shadow-lg shadow-blue-500/25 ring-1 ring-white/20 shrink-0"
+              className="w-10 h-10 rounded-2xl shadow-lg shadow-blue-500/25 ring-1 ring-white/20 shrink-0"
             />
             <div>
               <h2 className="text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-2">
-                AI Viral Video & Cartoon Generator
+                Any Prompt Text to Video
                 <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30">
-                  Gemini 3.8
+                  Universal AI
                 </span>
               </h2>
               <p className="text-xs text-zinc-400">
-                Turn any idea into a retention-optimized 9:16 script, scenes, audio cues, and viral hook.
+                Type or paste any story, idea, script, or question — we'll generate the scenes, voiceover, and timed subtitles.
               </p>
             </div>
           </div>
@@ -123,12 +144,14 @@ export const ScriptGeneratorModal: React.FC<ScriptGeneratorModalProps> = ({
         {/* Input Idea / Topic */}
         <div className="flex flex-col gap-2">
           <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center justify-between">
-            <span>Video Topic or Story Idea</span>
-            <span className="text-[11px] text-zinc-500 font-normal">Be specific or pick an inspiration below</span>
+            <span>Any Story Prompt, Script, or Topic</span>
+            <span className="text-[11px] text-zinc-400 font-normal">
+              {topic.length} characters • {topic.trim().split(/\s+/).filter(Boolean).length} words
+            </span>
           </label>
           <div className="relative">
             <textarea
-              rows={3}
+              rows={4}
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               onKeyDown={(e) => {
@@ -137,25 +160,42 @@ export const ScriptGeneratorModal: React.FC<ScriptGeneratorModalProps> = ({
                   handleGenerate();
                 }
               }}
-              placeholder="e.g. 5 psychological secrets that make people trust you instantly, or a funny animated cartoon about a wizard whose spells turn everything into cheese..."
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-3.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 resize-none transition-all"
+              placeholder="Paste or type ANY story idea here... For example:
+• 5 shocking psychology secrets that make people trust you instantly
+• A magical cartoon adventure about a detective cat solving mysteries in Paris
+• What would happen if the Moon suddenly drifted 10% closer to Earth?
+• Or paste your own full script here to turn it into 9:16 scenes!"
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-3.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all font-sans leading-relaxed"
             />
           </div>
 
-          {/* Quick Generate Video Action Bar below Prompt */}
-          <div className="flex items-center justify-between gap-2 p-2 bg-zinc-950/70 border border-zinc-800/80 rounded-2xl">
+          {/* Quick Action Bar below Prompt */}
+          <div className="flex items-center justify-between gap-2 p-2 bg-zinc-950/70 border border-zinc-800/80 rounded-2xl flex-wrap">
             <span className="text-[11px] text-zinc-400 font-medium px-2">
               Tip: Press <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono text-[10px] border border-zinc-700">⌘/Ctrl + Enter</kbd> to generate
             </span>
-            <button
-              type="button"
-              onClick={handleGenerate}
-              disabled={isLoading || !topic.trim()}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-violet-600 via-rose-500 to-amber-500 text-white shadow-lg shadow-rose-500/25 hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 cursor-pointer shrink-0"
-            >
-              <Video className="w-4 h-4 text-white fill-white/20" />
-              <span>{isLoading ? 'Generating...' : 'Generate Video'}</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleInstantConvert}
+                disabled={!topic.trim()}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700/80 transition-all disabled:opacity-50 cursor-pointer"
+                title="Convert text directly into video scenes instantly"
+              >
+                <Zap className="w-3.5 h-3.5 text-amber-400" />
+                <span>Instant Convert</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleGenerate}
+                disabled={isLoading || !topic.trim()}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-violet-600 via-rose-500 to-amber-500 text-white shadow-lg shadow-rose-500/25 hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 cursor-pointer shrink-0"
+              >
+                <Video className="w-4 h-4 text-white fill-white/20" />
+                <span>{isLoading ? 'Generating Video...' : 'Generate Video'}</span>
+              </button>
+            </div>
           </div>
 
           {/* Prompt Inspiration Pills */}

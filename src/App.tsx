@@ -29,6 +29,7 @@ import { ScriptGeneratorModal } from './components/ScriptGeneratorModal';
 import { HookOptimizerModal } from './components/HookOptimizerModal';
 import { ExportModal } from './components/ExportModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
+import { parseAnyPromptToVideo } from './utils/textToVideoParser';
 
 export default function App() {
   const [project, setProject] = useState<Project>(PRESET_PROJECTS[0]);
@@ -44,6 +45,7 @@ export default function App() {
   // Batch TTS generation state
   const [isGeneratingVoices, setIsGeneratingVoices] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [quickPrompt, setQuickPrompt] = useState<string>('');
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -224,24 +226,40 @@ export default function App() {
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Left / Center Area: 9:16 Phone Canvas Player */}
         <div className="flex-1 flex flex-col items-center justify-center bg-zinc-950/60 p-2 sm:p-4 border-b lg:border-b-0 lg:border-r border-zinc-850">
-          {/* Quick Prompt Bar with Generate Video Icon */}
-          <div className="w-full max-w-[360px] sm:max-w-[420px] mb-3 flex items-center gap-2 bg-zinc-900/90 border border-zinc-800 rounded-2xl p-1.5 shadow-xl backdrop-blur-md">
+          {/* Universal Any Prompt Text-to-Video Bar */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!quickPrompt.trim()) {
+                setIsGeneratorOpen(true);
+                return;
+              }
+              const generated = parseAnyPromptToVideo(quickPrompt, {
+                format: project.format,
+                tone: project.tone
+              });
+              updateProject(generated);
+              setSelectedSceneIndex(0);
+              showToast(`🎬 Video generated from prompt! (${generated.scenes?.length || 3} scenes)`);
+              setQuickPrompt('');
+            }}
+            className="w-full max-w-[360px] sm:max-w-[460px] mb-3 flex items-center gap-2 bg-zinc-900/90 border border-zinc-800 rounded-2xl p-1.5 shadow-xl backdrop-blur-md focus-within:border-violet-500/80 transition-all"
+          >
             <input
               type="text"
-              placeholder="Prompt a story, idea, or viral hook..."
-              onClick={() => setIsGeneratorOpen(true)}
-              onFocus={() => setIsGeneratorOpen(true)}
-              readOnly
-              className="flex-1 bg-transparent px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none cursor-pointer"
+              value={quickPrompt}
+              onChange={(e) => setQuickPrompt(e.target.value)}
+              placeholder="Type ANY prompt or story to convert to video..."
+              className="flex-1 bg-transparent px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none"
             />
             <button
-              onClick={() => setIsGeneratorOpen(true)}
+              type="submit"
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-violet-600 via-rose-500 to-amber-500 text-white shadow-md shadow-rose-500/25 hover:brightness-110 active:scale-95 transition-all cursor-pointer shrink-0"
             >
               <Video className="w-3.5 h-3.5" />
               <span>Generate Video</span>
             </button>
-          </div>
+          </form>
 
           <PhonePlayer
             project={project}
