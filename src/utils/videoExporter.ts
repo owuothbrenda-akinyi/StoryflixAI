@@ -31,6 +31,9 @@ export class VideoExporter {
           throw new Error('Total project duration is 0 seconds.');
         }
 
+        // Preload all scene visual art into memory before recording frames
+        await this.renderer.preloadAll(project);
+
         audioEngine.init();
         audioEngine.setVolumes(project.bgmVolume, project.voiceVolume);
         audioEngine.startBGM(project.bgmTrack);

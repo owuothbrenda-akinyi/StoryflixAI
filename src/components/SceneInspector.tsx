@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { CameraEffect, CharacterEmotion, Scene, SoundEffectCue } from '../types/studio';
 import { audioEngine } from '../utils/audioEngine';
+import { generateCinematicSceneVisual } from '../utils/cinematicArtEngine';
 
 interface SceneInspectorProps {
   scene: Scene;
@@ -88,6 +89,19 @@ export const SceneInspector: React.FC<SceneInspectorProps> = ({
     setVisualError(null);
     const targetPrompt = customPrompt || scene.visualDescription || scene.narration || 'Cinematic vertical shot';
 
+    // 1. Immediately apply high-fidelity cinematic 9:16 visual so preview updates with zero lag
+    const instantArt = generateCinematicSceneVisual(targetPrompt, {
+      format: isCartoonMode ? 'cartoon_story' : undefined,
+      isCartoon: isCartoonMode,
+      emotion: scene.characterEmotion,
+      sceneNumber: scene.sceneNumber
+    });
+    onUpdateScene({
+      imageUrl: instantArt,
+      visualDescription: customPrompt ? customPrompt : (scene.visualDescription || targetPrompt)
+    });
+
+    // 2. Try server AI generation enhancement in background
     try {
       const response = await fetch('/api/generate-visual', {
         method: 'POST',
@@ -104,17 +118,25 @@ export const SceneInspector: React.FC<SceneInspectorProps> = ({
           imageUrl: data.imageUrl,
           visualDescription: customPrompt ? customPrompt : scene.visualDescription
         });
-      } else {
-        throw new Error(data.error || 'Could not generate visual');
       }
     } catch (err: any) {
-      console.warn('Network issue generating visual, using local visual art generator:', err.message);
-      // Client-side fail-safe: generate high-res visual SVG
-      const fallbackSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%231e1b4b"/><stop offset="50%" stop-color="%23312e81"/><stop offset="100%" stop-color="%230f172a"/></linearGradient></defs><rect width="720" height="1280" fill="url(%23g)"/><circle cx="360" cy="500" r="160" fill="%23a855f7" opacity="0.3"/><text x="360" y="520" font-size="120" text-anchor="middle" dominant-baseline="central">🎬</text><text x="360" y="780" font-family="sans-serif" font-weight="bold" font-size="24" fill="%23c084fc" text-anchor="middle">CINEMATIC 9:16 VISUAL</text></svg>`;
-      onUpdateScene({ imageUrl: fallbackSvg });
+      console.warn('Network issue generating visual, retained local visual art:', err.message);
     } finally {
       setIsGeneratingVisual(false);
     }
+  };
+
+  const handleSelectArtPreset = (promptKeywords: string, visualDesc: string) => {
+    const art = generateCinematicSceneVisual(promptKeywords, {
+      format: isCartoonMode ? 'cartoon_story' : undefined,
+      isCartoon: isCartoonMode,
+      emotion: scene.characterEmotion,
+      sceneNumber: scene.sceneNumber
+    });
+    onUpdateScene({
+      imageUrl: art,
+      visualDescription: visualDesc
+    });
   };
 
   // Custom Image Upload handler
@@ -378,25 +400,38 @@ export const SceneInspector: React.FC<SceneInspectorProps> = ({
           className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-2.5 text-xs text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-fuchsia-400 resize-none"
         />
 
-        {/* Quick 9:16 Visual Style Presets */}
-        <div className="flex flex-wrap gap-1">
-          {[
-            { label: 'Cyberpunk 🌆', prompt: 'Neon cyberpunk futuristic street with glowing reflections and dramatic 9:16 vertical depth' },
-            { label: 'Anime 🐉', prompt: 'Vibrant Japanese anime fantasy landscape with floating magical islands and sunset clouds' },
-            { label: 'Space 🚀', prompt: 'Breathtaking deep space nebula with glowing stars, cosmic portal, and planetary rings' },
-            { label: 'Mind Mystery 🧠', prompt: 'Surreal brain neural network with electric synapses and glowing purple thoughts' },
-            { label: 'Wealth 💰', prompt: 'Luxurious vault with gold bars, emerald ambient light, and flying cash particles' },
-            { label: 'Pixar 3D 🏰', prompt: '3D Pixar animated fairytale kingdom with whimsical volumetric studio lighting' }
-          ].map((styleItem) => (
-            <button
-              key={styleItem.label}
-              type="button"
-              onClick={() => handleGenerateVisual(styleItem.prompt)}
-              className="text-[10px] font-bold px-2 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-800 transition-all cursor-pointer"
-            >
-              {styleItem.label}
-            </button>
-          ))}
+        {/* Quick 9:16 AI Movie & Animation Scene Gallery */}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between text-[11px] font-bold text-zinc-400">
+            <span>Instant AI Movie & Animation Stills</span>
+            <span className="text-[10px] text-fuchsia-400 font-normal">Click to apply backdrop</span>
+          </div>
+          <div className="grid grid-cols-3 gap-1.5">
+            {[
+              { label: 'Noir Eye 👁️', prompt: 'extreme noir eye gaze cinematic eyelid pupil macro', desc: 'Extreme Close-Up Noir Eye Still' },
+              { label: 'Neural Mind 🧠', prompt: 'holographic neural brain synapse purple electric thoughts', desc: 'Holographic Neural Brain Synapses' },
+              { label: 'Neo-Tokyo 🌆', prompt: 'cyberpunk neo-tokyo skyscrapers neon glowing reflections', desc: 'Cyberpunk Vertical Skyscrapers' },
+              { label: 'Deep Space 🚀', prompt: 'deep space cosmic nebula galaxy stars planetary rings', desc: 'Deep Space Cosmic Nebula' },
+              { label: 'Gold Vault 💰', prompt: 'luxury millionaire gold bullion vault emerald light money', desc: 'High-Security Billionaire Vault' },
+              { label: 'Ted Talk 🎙️', prompt: 'stage podcaster microphone golden spotlight audience', desc: 'Charismatic Stage Podcaster' },
+              { label: 'Panic HUD 📈', prompt: 'heart rate monitor medical HUD panic pulse red alert', desc: 'Emergency Panic Heart Rate Monitor' },
+              { label: 'Ancient Gate 🚪', prompt: 'secret ancient stone door portal glowing magic rune', desc: 'Secret Ancient Stone Portal' },
+              { label: '3 AM Clock ⏰', prompt: 'dark room 3 am glowing digital red clock insomnia', desc: '3 AM Midnight Insomnia Clock' },
+              { label: 'Pizza Portal 🍕', prompt: 'pixar 3d knight pizza portal cartoon funny comical', desc: '3D Pixar Knight & Pizza Portal' },
+              { label: 'Anime Cloud 🐉', prompt: 'anime manga floating islands sunset clouds vibrant fantasy', desc: 'Anime Studio Fantasy Clouds' },
+              { label: 'Movie Studio ✨', prompt: 'atmospheric cinematic dramatic studio lighting volumetric', desc: 'Atmospheric Cinema Studio Still' }
+            ].map((styleItem) => (
+              <button
+                key={styleItem.label}
+                type="button"
+                onClick={() => handleSelectArtPreset(styleItem.prompt, styleItem.desc)}
+                className="text-[10px] font-bold px-2 py-1.5 rounded-lg bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-800/80 hover:border-fuchsia-500/50 transition-all cursor-pointer truncate text-left"
+                title={styleItem.desc}
+              >
+                <span className="truncate">{styleItem.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Visual action buttons */}

@@ -10,7 +10,10 @@ import {
   Volume2,
   VolumeX,
   Maximize2,
-  Gauge
+  Gauge,
+  Film,
+  Layers,
+  Sparkles
 } from 'lucide-react';
 import { Project, Scene } from '../types/studio';
 import { CanvasRenderer } from '../utils/canvasRenderer';
@@ -22,6 +25,7 @@ interface PhonePlayerProps {
   onSelectScene: (index: number) => void;
   showTikTokOverlay: boolean;
   onToggleTikTokOverlay: () => void;
+  onUpdateProject?: (updated: Partial<Project>) => void;
 }
 
 export const PhonePlayer: React.FC<PhonePlayerProps> = ({
@@ -29,7 +33,8 @@ export const PhonePlayer: React.FC<PhonePlayerProps> = ({
   selectedSceneIndex,
   onSelectScene,
   showTikTokOverlay,
-  onToggleTikTokOverlay
+  onToggleTikTokOverlay,
+  onUpdateProject
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rendererRef = useRef<CanvasRenderer | null>(null);
@@ -54,7 +59,11 @@ export const PhonePlayer: React.FC<PhonePlayerProps> = ({
   // Initialize renderer once
   useEffect(() => {
     if (canvasRef.current && !rendererRef.current) {
-      rendererRef.current = new CanvasRenderer(canvasRef.current);
+      const rend = new CanvasRenderer(canvasRef.current);
+      rend.onImageLoaded = () => {
+        renderCurrentState();
+      };
+      rendererRef.current = rend;
     }
   }, []);
 
@@ -107,6 +116,14 @@ export const PhonePlayer: React.FC<PhonePlayerProps> = ({
       renderCurrentState();
     }
   }, [renderCurrentState, isPlaying, project, selectedSceneIndex, showTikTokOverlay]);
+
+  // Preload image for currently selected scene
+  useEffect(() => {
+    const sc = project.scenes[selectedSceneIndex];
+    if (sc?.imageUrl && rendererRef.current) {
+      rendererRef.current.preloadImage(sc.imageUrl);
+    }
+  }, [selectedSceneIndex, project]);
 
   // Handle Playback Loop
   useEffect(() => {
@@ -254,7 +271,52 @@ export const PhonePlayer: React.FC<PhonePlayerProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full p-4 select-none">
+    <div className="flex flex-col items-center justify-center h-full p-2 sm:p-4 select-none">
+      {/* Visual Format Toggle: AI Movie Mode vs Split-Screen B-Roll Mode */}
+      <div className="flex flex-wrap items-center justify-center gap-1.5 p-1 bg-zinc-900/90 border border-zinc-800 rounded-2xl mb-3 shadow-lg">
+        <button
+          onClick={() => onUpdateProject?.({ splitScreenMode: false })}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            !project.splitScreenMode
+              ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-md'
+              : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+          }`}
+          title="Full 9:16 Cinematic AI Movie & Visual Story"
+        >
+          <Film className="w-3.5 h-3.5" />
+          <span>Full Cinema Movie</span>
+        </button>
+
+        <button
+          onClick={() => onUpdateProject?.({ splitScreenMode: true })}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            project.splitScreenMode
+              ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-md'
+              : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+          }`}
+          title="Viral TikTok/Shorts Split-Screen (AI Story on Top, Parkour B-Roll on Bottom)"
+        >
+          <Layers className="w-3.5 h-3.5" />
+          <span>Split-Screen B-Roll</span>
+        </button>
+
+        {project.splitScreenMode && (
+          <select
+            value={project.splitScreenType || 'minecraft_parkour'}
+            onChange={(e) =>
+              onUpdateProject?.({
+                splitScreenType: e.target.value as any
+              })
+            }
+            className="bg-zinc-950 border border-zinc-700 text-amber-300 rounded-xl px-2 py-1 text-[11px] font-bold focus:outline-none cursor-pointer"
+          >
+            <option value="minecraft_parkour">🧱 Minecraft Parkour</option>
+            <option value="neon_grid">🌆 Neon Synthwave Grid</option>
+            <option value="satisfying_sand">🌀 Kinetic Rainbow Sand</option>
+          </select>
+        )}
+      </div>
+
       {/* 9:16 Smartphone Mockup Frame */}
       <div className="relative group/phone">
         {/* Glow ambient aura behind phone */}

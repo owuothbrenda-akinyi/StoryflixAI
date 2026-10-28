@@ -30,6 +30,7 @@ import { HookOptimizerModal } from './components/HookOptimizerModal';
 import { ExportModal } from './components/ExportModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { parseAnyPromptToVideo } from './utils/textToVideoParser';
+import { generateCinematicSceneVisual } from './utils/cinematicArtEngine';
 
 export default function App() {
   const [project, setProject] = useState<Project>(PRESET_PROJECTS[0]);
@@ -117,6 +118,14 @@ export default function App() {
       narration: sc.narration || '',
       visualDescription: sc.visualDescription || '',
       visualStyleKeywords: sc.visualStyleKeywords || '',
+      imageUrl:
+        sc.imageUrl ||
+        generateCinematicSceneVisual(sc.visualDescription || sc.narration || '', {
+          format: chosenFormat,
+          isCartoon: chosenFormat === 'cartoon_story',
+          emotion: sc.characterEmotion,
+          sceneNumber: idx + 1
+        }),
       cameraEffect: sc.cameraEffect || 'zoom_in',
       soundEffectCue: sc.soundEffectCue || 'whoosh',
       overlayBadge: sc.overlayBadge || 'VIRAL HOOK',
@@ -267,6 +276,7 @@ export default function App() {
             onSelectScene={setSelectedSceneIndex}
             showTikTokOverlay={showTikTokOverlay}
             onToggleTikTokOverlay={() => setShowTikTokOverlay(!showTikTokOverlay)}
+            onUpdateProject={updateProject}
           />
         </div>
 

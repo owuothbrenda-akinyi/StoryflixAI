@@ -1,5 +1,6 @@
 import { Project, Scene, VideoFormat, VideoTone } from '../types/studio';
 import { generateAutoCaptions } from './autoCaptionGenerator';
+import { generateCinematicSceneVisual } from './cinematicArtEngine';
 
 /**
  * Universal Text-to-Video Engine
@@ -91,6 +92,12 @@ export function parseAnyPromptToVideo(
       narration: text,
       visualDescription: `Cinematic 9:16 vertical shot illustrating: ${text}. Hyper-detailed, rich volumetric lighting, high dynamic range.`,
       visualStyleKeywords: 'Cinematic 9:16, 8k resolution, dramatic rim lighting, vibrant atmosphere',
+      imageUrl: generateCinematicSceneVisual(text, {
+        format,
+        isCartoon: format === 'cartoon_story',
+        emotion: idx === 0 ? 'shocked' : idx % 2 === 0 ? 'heroic' : 'confident',
+        sceneNumber: idx + 1
+      }),
       cameraEffect: cameraEffects[idx % cameraEffects.length],
       soundEffectCue: soundCues[idx % soundCues.length],
       overlayBadge: badges[idx % badges.length],

@@ -167,6 +167,13 @@ Each scene must have:
       };
     }
 
+    if (parsedData?.scenes && Array.isArray(parsedData.scenes)) {
+      parsedData.scenes = parsedData.scenes.map((sc: any) => ({
+        ...sc,
+        imageUrl: sc.imageUrl || generateProcedural916Visual(sc.visualDescription || sc.narration, format === 'cartoon_story')
+      }));
+    }
+
     return res.json(parsedData);
   } catch (error: any) {
     console.error('Error generating script:', error);

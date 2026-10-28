@@ -112,6 +112,8 @@ export interface Project {
   autoCaptionsEnabled?: boolean;
   subtitleBlocks?: SubtitleBlock[];
   captionTimingOffsetSec?: number; // micro-timing adjustments
+  splitScreenMode?: boolean; // TikTok/Shorts Split-screen with viral B-Roll at bottom
+  splitScreenType?: 'minecraft_parkour' | 'neon_grid' | 'satisfying_sand';
 }
 
 export interface CharacterPreset {
