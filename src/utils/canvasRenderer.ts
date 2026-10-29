@@ -28,6 +28,21 @@ export class CanvasRenderer {
     this.canvas.height = CanvasRenderer.HEIGHT;
   }
 
+  private roundRect(x: number, y: number, w: number, h: number, radius: number) {
+    const ctx = this.ctx;
+    if (typeof (ctx as any).roundRect === 'function') {
+      (ctx as any).roundRect(x, y, w, h, radius);
+      return;
+    }
+    const r = Math.min(radius, Math.abs(w) / 2, Math.abs(h) / 2);
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
   public async preloadImage(url?: string): Promise<void> {
     if (!url) return;
     const existing = this.imgCache.get(url);
@@ -173,7 +188,7 @@ export class CanvasRenderer {
       const pillY = splitY - pillH / 2;
       ctx.fillStyle = '#09090b';
       ctx.beginPath();
-      ctx.roundRect(pillX, pillY, pillW, pillH, 13);
+      this.roundRect(pillX, pillY, pillW, pillH, 13);
       ctx.fill();
       ctx.strokeStyle = '#fbbf24';
       ctx.lineWidth = 1.5;
@@ -568,7 +583,7 @@ export class CanvasRenderer {
       ctx.translate(W / 2, jumpY);
       ctx.fillStyle = '#38bdf8';
       ctx.beginPath();
-      ctx.roundRect(-16, -20, 32, 28, 6);
+      this.roundRect(-16, -20, 32, 28, 6);
       ctx.fill();
       ctx.fillStyle = '#0284c7';
       ctx.fillRect(-12, 8, 8, 16);
@@ -691,7 +706,7 @@ export class CanvasRenderer {
 
     // Bubble box
     ctx.beginPath();
-    ctx.roundRect(x - bw / 2, y - bh / 2, bw, bh, r);
+    this.roundRect(x - bw / 2, y - bh / 2, bw, bh, r);
     ctx.fill();
     ctx.stroke();
 
@@ -744,7 +759,7 @@ export class CanvasRenderer {
 
     ctx.fillStyle = bgGrad;
     ctx.beginPath();
-    ctx.roundRect(bx, y, bw, bh, 24);
+    this.roundRect(bx, y, bw, bh, 24);
     ctx.fill();
 
     ctx.strokeStyle = '#ffffff';
@@ -812,7 +827,7 @@ export class CanvasRenderer {
     if (preset === 'minimal_glass') {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
       ctx.beginPath();
-      ctx.roundRect(currentX - 25, lineY - baseFontSize * 1.1, totalLineWidth + 50, baseFontSize * 1.8, 20);
+      this.roundRect(currentX - 25, lineY - baseFontSize * 1.1, totalLineWidth + 50, baseFontSize * 1.8, 20);
       ctx.fill();
     }
 

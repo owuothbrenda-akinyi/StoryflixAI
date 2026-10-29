@@ -46,6 +46,20 @@ export function generateCinematicSceneVisual(
   return generateAtmosphericMovieStill(description);
 }
 
+function encodeSvg(svg: string): string {
+  if (typeof window !== 'undefined' && typeof window.btoa === 'function') {
+    try {
+      return 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svg)));
+    } catch {
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+  }
+  if (typeof Buffer !== 'undefined') {
+    return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
+  }
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
 /** 1. Extreme Close-Up Noir Eye Scene */
 function generateEyeNoirScene(): string {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
@@ -102,7 +116,7 @@ function generateEyeNoirScene(): string {
   <!-- Movie Subtitle Tag -->
   <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="#f59e0b" text-anchor="middle" opacity="0.9">SCENE 1 // PSYCHOLOGICAL DECEPTION</text>
 </svg>`;
-  return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
+  return encodeSvg(svg);
 }
 
 /** 2. Cyberpunk Heart Rate Panic Scene */
@@ -149,7 +163,7 @@ function generateHeartMonitorScene(): string {
   <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
   <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="#ef4444" text-anchor="middle">SCENE 2 // PSYCHOLOGICAL OVERDRIVE</text>
 </svg>`;
-  return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
+  return encodeSvg(svg);
 }
 
 /** 3. Charismatic Speaker on Stage Scene */
@@ -193,7 +207,7 @@ function generateStagePodcasterScene(): string {
   <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
   <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="#fbbf24" text-anchor="middle">SCENE 3 // CHARISMATIC INFLUENCE</text>
 </svg>`;
-  return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
+  return encodeSvg(svg);
 }
 
 /** 4. Holographic Neural Brain Synapses Scene */
@@ -251,7 +265,7 @@ function generateHolographicBrainScene(): string {
   <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
   <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="#06b6d4" text-anchor="middle">SCENE 4 // MIRROR NEURON SYNC</text>
 </svg>`;
-  return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
+  return encodeSvg(svg);
 }
 
 /** 5. Cartoon Movie Still: Knight & Swirling Pizza Portal */
@@ -308,7 +322,7 @@ function generatePizzaPortalScene(): string {
   <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
   <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="18" letter-spacing="4" fill="#facc15" text-anchor="middle">ANIMATED CARTOON STORY // ACT 1</text>
 </svg>`;
-  return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
+  return encodeSvg(svg);
 }
 
 /** 6. Deep Space Cosmic Nebula */
@@ -342,7 +356,7 @@ function generateCosmicNebulaScene(): string {
   <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
   <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="#38bdf8" text-anchor="middle">SCENE // COSMIC ANOMALY</text>
 </svg>`;
-  return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
+  return encodeSvg(svg);
 }
 
 /** 7. Cyberpunk Neon City Scene */
@@ -376,7 +390,7 @@ function generateCyberpunkCityScene(): string {
   <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
   <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="#00f0ff" text-anchor="middle">SCENE // NEO-TOKYO 2099</text>
 </svg>`;
-  return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
+  return encodeSvg(svg);
 }
 
 /** 8. High-Security Gold Vault Scene */
@@ -413,7 +427,7 @@ function generateGoldVaultScene(): string {
   <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
   <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="#fbbf24" text-anchor="middle">SCENE // THE BILLIONAIRE VAULT</text>
 </svg>`;
-  return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
+  return encodeSvg(svg);
 }
 
 /** 9. Dark Room & 3 AM Scene */
@@ -442,7 +456,7 @@ function generateNightRoomScene(): string {
   <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
   <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="#ef4444" text-anchor="middle">SCENE // MIDNIGHT METABOLISM</text>
 </svg>`;
-  return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
+  return encodeSvg(svg);
 }
 
 /** 10. Secret Door Dorm Mystery Scene */
@@ -474,7 +488,7 @@ function generateSecretDoorScene(): string {
   <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
   <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="#38bdf8" text-anchor="middle">SCENE // THE UNEXPLAINED ENTRANCE</text>
 </svg>`;
-  return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
+  return encodeSvg(svg);
 }
 
 /** 11. Cartoon Movie Still with Animated Staging */
@@ -522,7 +536,7 @@ function generateCartoonMovieStill(prompt: string, emotion: string, sceneNum: nu
   <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
   <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="18" letter-spacing="4" fill="#facc15" text-anchor="middle">PIXAR 3D CARTOON ANIMATION // SCENE ${sceneNum}</text>
 </svg>`;
-  return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
+  return encodeSvg(svg);
 }
 
 /** 12. General Atmospheric Cinematic Movie Still */
@@ -574,5 +588,5 @@ function generateAtmosphericMovieStill(prompt: string): string {
   <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
   <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="${accent}" text-anchor="middle">${title}</text>
 </svg>`;
-  return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
+  return encodeSvg(svg);
 }
