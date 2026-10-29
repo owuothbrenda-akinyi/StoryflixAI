@@ -63,7 +63,11 @@ export class CanvasRenderer {
   }
 
   public async preloadAll(project: Project): Promise<void> {
-    const urls = project.scenes.map((s) => s.imageUrl).filter(Boolean) as string[];
+    const urls: string[] = [];
+    project.scenes.forEach((s) => {
+      if (s.imageUrl) urls.push(s.imageUrl);
+      if (s.fallbackSvg) urls.push(s.fallbackSvg);
+    });
     await Promise.all(urls.map((u) => this.preloadImage(u)));
   }
 
@@ -206,11 +210,23 @@ export class CanvasRenderer {
   private drawSceneArt(scene: Scene, totalTime: number, progress: number, project: Project, W: number, H: number) {
     const ctx = this.ctx;
 
-    // 1. Draw Scene Image Artwork with Kinetic Ken Burns Motion
+    // 1. Draw Scene Image Artwork (AI photoreal image or instant SVG scene) with Kinetic Ken Burns Motion
+    let img: HTMLImageElement | null = null;
     if (scene.imageUrl) {
-      const img = this.getImage(scene.imageUrl);
-      if (img && img.complete && img.naturalWidth > 0) {
-        ctx.save();
+      const candidate = this.getImage(scene.imageUrl);
+      if (candidate && candidate.complete && candidate.naturalWidth > 0) {
+        img = candidate;
+      }
+    }
+    if (!img && scene.fallbackSvg) {
+      const fallback = this.getImage(scene.fallbackSvg);
+      if (fallback && fallback.complete && fallback.naturalWidth > 0) {
+        img = fallback;
+      }
+    }
+
+    if (img) {
+      ctx.save();
 
         // Ken Burns smooth cinematic zoom & parallax
         const kenBurnsScale = 1.05 + progress * 0.08;
@@ -271,7 +287,6 @@ export class CanvasRenderer {
         ctx.fillRect(0, 0, W, H);
         return;
       }
-    }
 
     // Generative Animated Procedural Backgrounds based on style & tone
     const format = project.format;

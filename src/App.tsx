@@ -30,7 +30,7 @@ import { HookOptimizerModal } from './components/HookOptimizerModal';
 import { ExportModal } from './components/ExportModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { parseAnyPromptToVideo } from './utils/textToVideoParser';
-import { generateCinematicSceneVisual } from './utils/cinematicArtEngine';
+import { generateCinematicSceneVisual, getAIImageUrl } from './utils/cinematicArtEngine';
 
 export default function App() {
   const [project, setProject] = useState<Project>(PRESET_PROJECTS[0]);
@@ -120,6 +120,9 @@ export default function App() {
       visualStyleKeywords: sc.visualStyleKeywords || '',
       imageUrl:
         sc.imageUrl ||
+        getAIImageUrl(sc.visualDescription || sc.narration || '', chosenFormat === 'cartoon_story', idx),
+      fallbackSvg:
+        sc.fallbackSvg ||
         generateCinematicSceneVisual(sc.visualDescription || sc.narration || '', {
           format: chosenFormat,
           isCartoon: chosenFormat === 'cartoon_story',
@@ -144,9 +147,11 @@ export default function App() {
       tone: chosenTone,
       cartoonStyle: chosenCartoonStyle,
       captionPreset: chosenFormat === 'cartoon_story' ? 'cartoon_comic' : 'hormozi_yellow',
-      captionYPercent: 68,
+      captionYPercent: chosenFormat !== 'cartoon_story' ? 52 : 68,
       captionFontSize: 34,
       autoEmojis: true,
+      splitScreenMode: chosenFormat !== 'cartoon_story',
+      splitScreenType: 'minecraft_parkour',
       bgmTrack: data.bgmSuggestion || (chosenFormat === 'cartoon_story' ? 'cartoon_quirky' : 'phonk_drift'),
       bgmVolume: 0.35,
       voiceVolume: 0.95,
@@ -243,14 +248,19 @@ export default function App() {
                 setIsGeneratorOpen(true);
                 return;
               }
-              const generated = parseAnyPromptToVideo(quickPrompt, {
+              const promptVal = quickPrompt;
+              setQuickPrompt('');
+              const generated = parseAnyPromptToVideo(promptVal, {
                 format: project.format,
                 tone: project.tone
               });
-              updateProject(generated);
+              setProject((prev) => ({
+                ...prev,
+                ...generated,
+                id: `proj_${Date.now()}`
+              } as Project));
               setSelectedSceneIndex(0);
-              showToast(`🎬 Video generated from prompt! (${generated.scenes?.length || 3} scenes)`);
-              setQuickPrompt('');
+              showToast(`🎬 TikTok video generated from prompt! (${generated.scenes?.length || 3} scenes)`);
             }}
             className="w-full max-w-[360px] sm:max-w-[460px] mb-3 flex items-center gap-2 bg-zinc-900/90 border border-zinc-800 rounded-2xl p-1.5 shadow-xl backdrop-blur-md focus-within:border-violet-500/80 transition-all"
           >
@@ -258,7 +268,7 @@ export default function App() {
               type="text"
               value={quickPrompt}
               onChange={(e) => setQuickPrompt(e.target.value)}
-              placeholder="Type ANY prompt or story to convert to video..."
+              placeholder="Prompt any TikTok idea (e.g. haunted hotel, supercars, pyramids, deep sea)..."
               className="flex-1 bg-transparent px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none"
             />
             <button
@@ -266,7 +276,7 @@ export default function App() {
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-violet-600 via-rose-500 to-amber-500 text-white shadow-md shadow-rose-500/25 hover:brightness-110 active:scale-95 transition-all cursor-pointer shrink-0"
             >
               <Video className="w-3.5 h-3.5" />
-              <span>Generate Video</span>
+              <span>Generate TikTok Video</span>
             </button>
           </form>
 

@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI, Type } from '@google/genai';
-import { generateCinematicSceneVisual } from './src/utils/cinematicArtEngine.ts';
+import { generateCinematicSceneVisual, getAIImageUrl } from './src/utils/cinematicArtEngine.ts';
 
 dotenv.config();
 
@@ -169,9 +169,14 @@ Each scene must have:
     }
 
     if (parsedData?.scenes && Array.isArray(parsedData.scenes)) {
-      parsedData.scenes = parsedData.scenes.map((sc: any) => ({
+      parsedData.scenes = parsedData.scenes.map((sc: any, idx: number) => ({
         ...sc,
-        imageUrl: sc.imageUrl || generateProcedural916Visual(sc.visualDescription || sc.narration, format === 'cartoon_story')
+        imageUrl: sc.imageUrl || getAIImageUrl(sc.visualDescription || sc.narration || topic, format === 'cartoon_story', idx),
+        fallbackSvg: sc.fallbackSvg || generateCinematicSceneVisual(sc.visualDescription || sc.narration || topic, {
+          format,
+          isCartoon: format === 'cartoon_story',
+          sceneNumber: idx + 1
+        })
       }));
     }
 

@@ -69,6 +69,7 @@ export interface Scene {
   visualDescription: string;
   visualStyleKeywords?: string;
   imageUrl?: string;
+  fallbackSvg?: string;
   bgTheme?: string;
   cameraEffect: CameraEffect;
   soundEffectCue: SoundEffectCue;

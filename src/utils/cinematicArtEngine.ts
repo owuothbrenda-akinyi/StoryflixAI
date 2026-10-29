@@ -20,30 +20,55 @@ export function generateCinematicSceneVisual(
     return generateCartoonMovieStill(description, options.emotion || 'shocked', options.sceneNumber || 1);
   }
 
-  if (d.includes('eye') || d.includes('lying') || d.includes('silent') || d.includes('look')) {
+  if (d.includes('ghost') || d.includes('horror') || d.includes('creepy') || d.includes('haunt') || d.includes('asylum') || d.includes('scary') || d.includes('spooky')) {
+    return generateHorrorGhostScene();
+  } else if (d.includes('pyramid') || d.includes('egypt') || d.includes('desert') || d.includes('pharaoh') || d.includes('sand') || d.includes('ancient')) {
+    return generatePyramidsScene();
+  } else if (d.includes('car') || d.includes('race') || d.includes('supercar') || d.includes('drift') || d.includes('speed') || d.includes('vehicle') || d.includes('engine')) {
+    return generateSupercarScene();
+  } else if (d.includes('ocean') || d.includes('sea') || d.includes('ship') || d.includes('shark') || d.includes('water') || d.includes('deep') || d.includes('fish')) {
+    return generateDeepSeaScene();
+  } else if (d.includes('castle') || d.includes('king') || d.includes('throne') || d.includes('medieval') || d.includes('sword') || d.includes('knight') || d.includes('kingdom')) {
+    return generateMedievalCastleScene();
+  } else if (d.includes('eye') || d.includes('lying') || d.includes('silent') || d.includes('look') || d.includes('stare')) {
     return generateEyeNoirScene();
-  } else if (d.includes('heart') || d.includes('panic') || d.includes('monitor') || d.includes('pulse')) {
+  } else if (d.includes('heart') || d.includes('panic') || d.includes('monitor') || d.includes('pulse') || d.includes('hospital') || d.includes('doctor')) {
     return generateHeartMonitorScene();
-  } else if (d.includes('speaker') || d.includes('stage') || d.includes('nod') || d.includes('podcast')) {
+  } else if (d.includes('speaker') || d.includes('stage') || d.includes('nod') || d.includes('podcast') || d.includes('interview')) {
     return generateStagePodcasterScene();
-  } else if (d.includes('brain') || d.includes('neuron') || d.includes('mind') || d.includes('psycholog')) {
+  } else if (d.includes('brain') || d.includes('neuron') || d.includes('mind') || d.includes('psycholog') || d.includes('think')) {
     return generateHolographicBrainScene();
-  } else if (d.includes('pizza') || d.includes('portal') || d.includes('knight')) {
+  } else if (d.includes('pizza') || d.includes('portal') || d.includes('food') || d.includes('eating')) {
     return generatePizzaPortalScene();
-  } else if (d.includes('space') || d.includes('galaxy') || d.includes('star') || d.includes('moon') || d.includes('planet')) {
+  } else if (d.includes('space') || d.includes('galaxy') || d.includes('star') || d.includes('moon') || d.includes('planet') || d.includes('alien')) {
     return generateCosmicNebulaScene();
-  } else if (d.includes('cyber') || d.includes('future') || d.includes('neon') || d.includes('robot')) {
+  } else if (d.includes('cyber') || d.includes('future') || d.includes('neon') || d.includes('robot') || d.includes('tech') || d.includes('ai')) {
     return generateCyberpunkCityScene();
-  } else if (d.includes('money') || d.includes('gold') || d.includes('rich') || d.includes('millionaire')) {
+  } else if (d.includes('money') || d.includes('gold') || d.includes('rich') || d.includes('millionaire') || d.includes('cash') || d.includes('crypto')) {
     return generateGoldVaultScene();
-  } else if (d.includes('coffee') || d.includes('sleep') || d.includes('night') || d.includes('3 am')) {
+  } else if (d.includes('coffee') || d.includes('sleep') || d.includes('night') || d.includes('3 am') || d.includes('bed')) {
     return generateNightRoomScene();
-  } else if (d.includes('door') || d.includes('closet') || d.includes('secret') || d.includes('dorm')) {
+  } else if (d.includes('door') || d.includes('closet') || d.includes('secret') || d.includes('dorm') || d.includes('mystery')) {
     return generateSecretDoorScene();
   }
 
-  // General atmospheric movie still matching mood
+  // General atmospheric movie still with mountain landscape & hero silhouette
   return generateAtmosphericMovieStill(description);
+}
+
+export function getAIImageUrl(prompt: string, isCartoon: boolean = false, seed?: number): string {
+  const clean = prompt.replace(/[^\w\s,]/gi, ' ').trim().slice(0, 160);
+  const aesthetic = isCartoon
+    ? 'Pixar 3D cute cartoon character animation, vertical 9:16 portrait, cinematic studio lighting, highly detailed'
+    : 'ultra-realistic 9:16 cinematic movie still, 8k, dramatic shadows, volumetric lighting, shot on 35mm lens';
+  const fullPrompt = `${aesthetic}, ${clean}`;
+  let hash = 0;
+  for (let i = 0; i < prompt.length; i++) {
+    hash = (hash << 5) - hash + prompt.charCodeAt(i);
+    hash |= 0;
+  }
+  const s = seed !== undefined ? seed : Math.abs(hash) % 999999;
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=720&height=1280&nologo=true&seed=${s}`;
 }
 
 function encodeSvg(svg: string): string {
@@ -539,54 +564,385 @@ function generateCartoonMovieStill(prompt: string, emotion: string, sceneNum: nu
   return encodeSvg(svg);
 }
 
-/** 12. General Atmospheric Cinematic Movie Still */
+/** 12. General Atmospheric Cinematic Movie Still with Hero Silhouette */
 function generateAtmosphericMovieStill(prompt: string): string {
   const p = (prompt || '').toLowerCase();
-  let colorA = '#180e29';
-  let colorB = '#3b0764';
+  let skyTop = '#05020c';
+  let skyMid = '#1e103a';
+  let mountainA = '#120726';
+  let mountainB = '#0a0316';
   let accent = '#f43f5e';
   let title = 'CINEMATIC STORY';
 
-  if (p.includes('nature') || p.includes('forest') || p.includes('mountain')) {
-    colorA = '#022c22';
-    colorB = '#064e3b';
+  if (p.includes('nature') || p.includes('forest') || p.includes('mountain') || p.includes('tree')) {
+    skyTop = '#021a12';
+    skyMid = '#064e3b';
+    mountainA = '#022c22';
+    mountainB = '#01150f';
     accent = '#4ade80';
-    title = 'EPIC LANDSCAPE';
-  } else if (p.includes('ocean') || p.includes('water') || p.includes('ship')) {
-    colorA = '#082f49';
-    colorB = '#0369a1';
+    title = 'EPIC WILDERNESS';
+  } else if (p.includes('ocean') || p.includes('water') || p.includes('sea')) {
+    skyTop = '#02101e';
+    skyMid = '#075985';
+    mountainA = '#0c4a6e';
+    mountainB = '#031f30';
     accent = '#38bdf8';
-    title = 'DEEP OCEAN';
+    title = 'DEEP HORIZON';
   }
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
   <defs>
-    <linearGradient id="atm" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#09090b"/>
-      <stop offset="40%" stop-color="${colorA}"/>
-      <stop offset="80%" stop-color="${colorB}"/>
-      <stop offset="100%" stop-color="#000000"/>
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${skyTop}"/>
+      <stop offset="50%" stop-color="${skyMid}"/>
+      <stop offset="85%" stop-color="#000000"/>
     </linearGradient>
-    <radialGradient id="lightCone" cx="50%" cy="35%" r="60%">
-      <stop offset="0%" stop-color="${accent}" stop-opacity="0.45"/>
+    <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="40%" stop-color="${accent}" stop-opacity="0.8"/>
       <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
   </defs>
-  <rect width="720" height="1280" fill="url(#atm)"/>
-  <rect width="720" height="1280" fill="url(#lightCone)"/>
-  
-  <!-- Cinematic anamorphic horizontal lens flare streak -->
-  <rect x="0" y="440" width="720" height="4" fill="#ffffff" opacity="0.7"/>
-  <rect x="60" y="438" width="600" height="8" fill="${accent}" opacity="0.5"/>
-  <circle cx="360" cy="442" r="35" fill="#ffffff" opacity="0.8"/>
-  
-  <!-- Atmospheric mist layers -->
-  <ellipse cx="360" cy="720" rx="400" ry="120" fill="${accent}" opacity="0.12"/>
-  <ellipse cx="360" cy="940" rx="420" ry="160" fill="#ffffff" opacity="0.06"/>
-  
+
+  <!-- Sky background -->
+  <rect width="720" height="1280" fill="url(#skyGrad)"/>
+
+  <!-- Twinkling stars -->
+  <g fill="#ffffff" opacity="0.6">
+    <circle cx="80" cy="180" r="1.5"/><circle cx="220" cy="120" r="2"/><circle cx="340" cy="90" r="1.5"/>
+    <circle cx="510" cy="160" r="2.5"/><circle cx="640" cy="220" r="1.5"/><circle cx="150" cy="280" r="2"/>
+    <circle cx="580" cy="310" r="2"/><circle cx="290" cy="240" r="1.5"/><circle cx="430" cy="260" r="2"/>
+  </g>
+
+  <!-- Glowing celestial moon -->
+  <circle cx="500" cy="320" r="180" fill="url(#moonGlow)" opacity="0.5"/>
+  <circle cx="500" cy="320" r="70" fill="#fef08a" opacity="0.95"/>
+  <circle cx="480" cy="305" r="60" fill="${skyMid}" opacity="0.3"/>
+
+  <!-- Distant mountain ridges -->
+  <path d="M0 640 Q180 520 360 590 T720 540 L720 1280 L0 1280 Z" fill="${mountainA}" opacity="0.85"/>
+  <path d="M0 720 Q220 620 460 700 T720 660 L720 1280 L0 1280 Z" fill="${mountainB}"/>
+
+  <!-- Foreground cliff precipice with silhouetted hero figure -->
+  <path d="M0 860 L240 820 L380 870 L480 830 L520 890 L720 860 L720 1280 L0 1280 Z" fill="#030108"/>
+
+  <!-- Traveler / Hero Silhouette standing on cliff -->
+  <g transform="translate(360, 770)" fill="#000000">
+    <ellipse cx="0" cy="0" rx="10" ry="12"/> <!-- Head -->
+    <path d="M-12 12 L12 12 L16 54 L-16 54 Z"/> <!-- Coat / Torso -->
+    <path d="M-14 18 Q-30 35 -38 52" stroke="#000000" stroke-width="5" stroke-linecap="round"/> <!-- Flowing cloak -->
+    <rect x="-10" y="54" width="7" height="32" rx="3"/> <!-- Legs -->
+    <rect x="3" y="54" width="7" height="32" rx="3"/>
+  </g>
+
+  <!-- Volumetric fog / mist -->
+  <ellipse cx="360" cy="850" rx="420" ry="80" fill="${accent}" opacity="0.15"/>
+  <ellipse cx="360" cy="980" rx="440" ry="120" fill="#ffffff" opacity="0.06"/>
+
+  <!-- Film grain & dramatic cinematic bars -->
   <rect x="0" y="0" width="720" height="90" fill="#000000"/>
   <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
   <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="${accent}" text-anchor="middle">${title}</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 13. Horror / Ghost / Haunted Hospital Scene */
+function generateHorrorGhostScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <linearGradient id="ghostBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="40%" stop-color="#0f172a"/>
+      <stop offset="85%" stop-color="#020408"/>
+    </linearGradient>
+    <radialGradient id="ghostGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#0284c7" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#ghostBg)"/>
+
+  <!-- Cracked arched hospital hallway perspective -->
+  <path d="M0 0 L260 380 L260 900 L0 1280 Z" fill="#080e1a"/>
+  <path d="M720 0 L460 380 L460 900 L720 1280 Z" fill="#060b14"/>
+  <rect x="260" y="380" width="200" height="520" fill="#030712"/>
+
+  <!-- Moonlight beam pouring from broken high window -->
+  <polygon points="120,0 260,0 360,650 180,650" fill="#38bdf8" opacity="0.12"/>
+
+  <!-- Spooky floating ethereal ghost phantom -->
+  <g transform="translate(360, 520)">
+    <!-- Aura glow -->
+    <circle cx="0" cy="0" r="160" fill="url(#ghostGlow)"/>
+    
+    <!-- Ghost shroud -->
+    <path d="M-55 -40 C-55 -110, 55 -110, 55 -40 C60 40, 75 140, 45 180 C20 150, 0 185, -20 150 C-45 180, -60 120, -55 -40 Z" fill="#e0f2fe" opacity="0.88"/>
+    
+    <!-- Hollow glowing spectral eyes -->
+    <ellipse cx="-20" cy="-45" rx="10" ry="16" fill="#020617"/>
+    <ellipse cx="20" cy="-45" rx="10" ry="16" fill="#020617"/>
+    <circle cx="-20" cy="-45" r="4" fill="#38bdf8"/>
+    <circle cx="20" cy="-45" r="4" fill="#38bdf8"/>
+
+    <!-- Open wailing mouth -->
+    <ellipse cx="0" cy="-10" rx="12" ry="18" fill="#020617"/>
+
+    <!-- Wispy trailing vapor -->
+    <path d="M-35 150 Q-50 210 -10 240 M25 150 Q45 200 15 250" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" opacity="0.6" fill="none"/>
+  </g>
+
+  <!-- Ground mist -->
+  <ellipse cx="360" cy="1000" rx="420" ry="140" fill="#38bdf8" opacity="0.18"/>
+
+  <!-- Cinematic Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="#38bdf8" text-anchor="middle">PARANORMAL // HAUNTED INVESTIGATION</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 14. Ancient Egyptian Pyramids Scene */
+function generatePyramidsScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <linearGradient id="pyrSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e102d"/>
+      <stop offset="45%" stop-color="#7c2d12"/>
+      <stop offset="75%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <radialGradient id="sunGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="40%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#ea580c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#pyrSky)"/>
+
+  <!-- Massive glowing golden sunset sun -->
+  <circle cx="360" cy="560" r="140" fill="url(#sunGrad)"/>
+
+  <!-- Distant small pyramids -->
+  <polygon points="120,680 180,590 240,680" fill="#451a03"/>
+  <polygon points="180,590 240,680 260,680" fill="#78350f"/>
+
+  <!-- Great Pyramid of Giza (Massive center) -->
+  <polygon points="160,780 380,440 600,780" fill="#78350f"/>
+  <polygon points="380,440 600,780 660,780" fill="#451a03"/>
+  <!-- Gold capstone -->
+  <polygon points="360,470 380,440 400,470" fill="#fef08a"/>
+
+  <!-- Left Great Pyramid -->
+  <polygon points="0,820 180,520 360,820" fill="#9a3412"/>
+  <polygon points="180,520 360,820 400,820" fill="#451a03"/>
+
+  <!-- Desert sand dunes in foreground -->
+  <path d="M0 760 Q200 680 440 760 T720 740 L720 1280 L0 1280 Z" fill="#d97706"/>
+  <path d="M0 860 Q260 760 520 860 T720 840 L720 1280 L0 1280 Z" fill="#b45309"/>
+  <path d="M0 980 Q320 880 720 960 L720 1280 L0 1280 Z" fill="#78350f"/>
+
+  <!-- Camel caravan silhouette -->
+  <g transform="translate(180, 880)" fill="#1c1917">
+    <ellipse cx="0" cy="0" rx="14" ry="10"/>
+    <ellipse cx="2" cy="-9" rx="7" ry="7"/> <!-- Hump -->
+    <path d="M10 -6 Q16 -18 20 -14 Q18 -6 12 0 Z"/> <!-- Neck/Head -->
+    <rect x="-8" y="8" width="3" height="24"/>
+    <rect x="6" y="8" width="3" height="24"/>
+  </g>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="#fde047" text-anchor="middle">ANCIENT EGYPT // FORGOTTEN PYRAMIDS</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 15. Neon Night Supercar Racing Scene */
+function generateSupercarScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <linearGradient id="carSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#030712"/>
+      <stop offset="50%" stop-color="#1e1035"/>
+      <stop offset="85%" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="headlightCone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="30%" stop-color="#38bdf8" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#carSky)"/>
+
+  <!-- City skyline background with illuminated windows -->
+  <g fill="#0f172a" opacity="0.9">
+    <rect x="60" y="320" width="80" height="280"/>
+    <rect x="160" y="260" width="90" height="340"/>
+    <rect x="270" y="210" width="110" height="390"/>
+    <rect x="400" y="280" width="80" height="320"/>
+    <rect x="500" y="240" width="100" height="360"/>
+    <rect x="620" y="340" width="70" height="260"/>
+  </g>
+
+  <!-- Wet asphalt highway -->
+  <polygon points="0,600 720,600 720,1280 0,1280" fill="#090d16"/>
+  <!-- Highway lane dividers -->
+  <polygon points="350,600 370,600 380,1280 340,1280" fill="#facc15" opacity="0.75"/>
+
+  <!-- Supercar Headlight Beams coming at the camera -->
+  <polygon points="260,780 0,1160 300,1280" fill="url(#headlightCone)" opacity="0.6"/>
+  <polygon points="460,780 720,1160 420,1280" fill="url(#headlightCone)" opacity="0.6"/>
+
+  <!-- Supercar Body Silhouette & Sharp Aero Lines -->
+  <g transform="translate(360, 760)">
+    <!-- Aerodynamic low body -->
+    <path d="M-180 40 L-130 -30 L-70 -70 L70 -70 L130 -30 L180 40 L160 70 L-160 70 Z" fill="#020617"/>
+    <path d="M-120 -25 L-60 -65 L60 -65 L120 -25 Z" fill="#0f172a"/> <!-- Windshield -->
+
+    <!-- Piercing LED Headlights -->
+    <path d="M-140 20 L-80 30 L-145 35 Z" fill="#ffffff"/>
+    <circle cx="-110" cy="28" r="8" fill="#38bdf8"/>
+    <path d="M140 20 L80 30 L145 35 Z" fill="#ffffff"/>
+    <circle cx="110" cy="28" r="8" fill="#38bdf8"/>
+
+    <!-- Cyan Neon Underglow -->
+    <ellipse cx="0" cy="72" rx="170" ry="18" fill="#00f0ff" opacity="0.75"/>
+  </g>
+
+  <!-- Speed lines & tire smoke -->
+  <g stroke="#ffffff" stroke-width="2" opacity="0.4">
+    <line x1="40" y1="740" x2="20" y2="920"/>
+    <line x1="680" y1="740" x2="700" y2="920"/>
+  </g>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="#00f0ff" text-anchor="middle">MIDNIGHT RACING // HYPERCAR HIGHWAY</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 16. Deep Sea Ocean & Giant Creature Scene */
+function generateDeepSeaScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <linearGradient id="oceanBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="35%" stop-color="#0369a1"/>
+      <stop offset="70%" stop-color="#082f49"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <radialGradient id="jellyGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#c084fc" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#oceanBg)"/>
+
+  <!-- Water sunbeams cascading down from surface -->
+  <polygon points="140,0 220,0 360,780 200,780" fill="#e0f2fe" opacity="0.18"/>
+  <polygon points="380,0 460,0 580,720 440,720" fill="#e0f2fe" opacity="0.15"/>
+
+  <!-- Colossal mysterious sea creature silhouette in background -->
+  <g opacity="0.35" fill="#021a2e">
+    <ellipse cx="260" cy="520" rx="320" ry="120" transform="rotate(-15, 260, 520)"/>
+    <path d="M480 460 Q620 440 680 380 Q640 480 540 520 Z"/> <!-- Massive tail fluke -->
+  </g>
+
+  <!-- Glowing Bioluminescent Jellyfish in midground -->
+  <g transform="translate(420, 640)">
+    <circle cx="0" cy="0" r="90" fill="url(#jellyGlow)"/>
+    <path d="M-45 0 C-45 -50, 45 -50, 45 0 Q0 15 -45 0 Z" fill="#e0f2fe" opacity="0.9"/>
+    <!-- Tentacles -->
+    <path d="M-30 10 Q-45 80 -25 140 M-10 10 Q-5 90 -15 150 M10 10 Q5 85 15 145 M30 10 Q40 80 25 140" stroke="#c084fc" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.85"/>
+  </g>
+
+  <!-- Small floating air bubbles -->
+  <circle cx="210" cy="420" r="6" fill="#e0f2fe" opacity="0.6"/>
+  <circle cx="230" cy="380" r="4" fill="#e0f2fe" opacity="0.5"/>
+  <circle cx="480" cy="360" r="8" fill="#e0f2fe" opacity="0.6"/>
+  <circle cx="495" cy="310" r="5" fill="#e0f2fe" opacity="0.5"/>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="#38bdf8" text-anchor="middle">DEEP OCEAN // THE UNKNOWN ABYSS</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 17. Medieval Castle & Kingdom Fortress Scene */
+function generateMedievalCastleScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <linearGradient id="castleSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a0316"/>
+      <stop offset="45%" stop-color="#2e1065"/>
+      <stop offset="85%" stop-color="#4c0519"/>
+    </linearGradient>
+    <radialGradient id="castleMoon" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#castleSky)"/>
+
+  <!-- Golden Moon behind fortress -->
+  <circle cx="240" cy="360" r="95" fill="url(#castleMoon)"/>
+
+  <!-- High mountain cliff base -->
+  <polygon points="0,680 720,740 720,1280 0,1280" fill="#090514"/>
+
+  <!-- Fortress Towers & Battlements -->
+  <g fill="#180e29">
+    <!-- Left watchtower -->
+    <rect x="80" y="440" width="80" height="260"/>
+    <polygon points="70,440 120,360 170,440" fill="#3b0764"/>
+    <!-- Center Great Keep -->
+    <rect x="220" y="400" width="160" height="300"/>
+    <rect x="210" y="380" width="180" height="25" fill="#2e1065"/>
+    <!-- Battlements teeth -->
+    <rect x="210" y="360" width="30" height="25"/>
+    <rect x="260" y="360" width="30" height="25"/>
+    <rect x="310" y="360" width="30" height="25"/>
+    <rect x="360" y="360" width="30" height="25"/>
+    <!-- Right Spire -->
+    <rect x="440" y="480" width="90" height="240"/>
+    <polygon points="430,480 485,390 540,480" fill="#3b0764"/>
+  </g>
+
+  <!-- Glowing warm torchlight in castle windows -->
+  <rect x="260" y="440" width="20" height="36" rx="10" fill="#fef08a"/>
+  <rect x="320" y="440" width="20" height="36" rx="10" fill="#fef08a"/>
+  <rect x="110" y="490" width="16" height="28" rx="8" fill="#fef08a"/>
+
+  <!-- Knight silhouette in foreground -->
+  <g transform="translate(520, 840)" fill="#05020a">
+    <ellipse cx="0" cy="0" rx="12" ry="14"/> <!-- Helmet -->
+    <path d="M-14 14 L14 14 L18 64 L-18 64 Z"/> <!-- Armor -->
+    <rect x="-8" y="64" width="7" height="38"/>
+    <rect x="3" y="64" width="7" height="38"/>
+    <!-- Sword pointing down -->
+    <line x1="-22" y1="20" x2="-22" y2="85" stroke="#e2e8f0" stroke-width="4"/>
+    <line x1="-30" y1="35" x2="-14" y2="35" stroke="#f59e0b" stroke-width="4"/>
+  </g>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" letter-spacing="6" fill="#fbbf24" text-anchor="middle">MEDIEVAL KINGDOM // STONE FORTRESS</text>
 </svg>`;
   return encodeSvg(svg);
 }

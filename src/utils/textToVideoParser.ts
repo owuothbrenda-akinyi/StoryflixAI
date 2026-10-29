@@ -1,11 +1,12 @@
 import { Project, Scene, VideoFormat, VideoTone } from '../types/studio';
 import { generateAutoCaptions } from './autoCaptionGenerator';
-import { generateCinematicSceneVisual } from './cinematicArtEngine';
+import { generateCinematicSceneVisual, getAIImageUrl } from './cinematicArtEngine';
 
 /**
  * Universal Text-to-Video Engine
  * Takes ANY prompt text (from a single sentence to a multi-paragraph script)
- * and transforms it into a complete, high-retention 9:16 vertical video project.
+ * and transforms it into a complete, high-retention 9:16 vertical video project
+ * with real AI scene visuals, animated TikTok split-screen, sound cues, and timed subtitles.
  */
 export function parseAnyPromptToVideo(
   promptText: string,
@@ -16,8 +17,22 @@ export function parseAnyPromptToVideo(
   } = {}
 ): Partial<Project> {
   const cleanText = promptText.trim();
-  const format = options.format || (cleanText.toLowerCase().includes('cartoon') ? 'cartoon_story' : 'viral_facts');
-  const tone = options.tone || 'fast_viral';
+  const lower = cleanText.toLowerCase();
+
+  // Smart Format Detection
+  let format: VideoFormat = options.format || 'viral_facts';
+  if (!options.format) {
+    if (lower.includes('cartoon') || lower.includes('animation') || lower.includes('dragon') || lower.includes('fairy') || lower.includes('kid')) {
+      format = 'cartoon_story';
+    } else if (lower.includes('horror') || lower.includes('ghost') || lower.includes('scary') || lower.includes('haunt') || lower.includes('mystery')) {
+      format = 'conspiracy_mystery';
+    } else if (lower.includes('reddit') || lower.includes('confess') || lower.includes('aita') || lower.includes('my boss') || lower.includes('storytime')) {
+      format = 'reddit_story';
+    }
+  }
+
+  const tone: VideoTone = options.tone || (format === 'conspiracy_mystery' ? 'dark_mystery' : 'fast_viral');
+  const isCartoon = format === 'cartoon_story';
 
   // 1. Break text into sentences or meaningful chunks
   const sentences = cleanText
@@ -30,7 +45,6 @@ export function parseAnyPromptToVideo(
   if (sentences.length >= 2) {
     sceneTexts = sentences;
   } else if (cleanText.length > 100) {
-    // Split into 3-4 chunks
     const words = cleanText.split(/\s+/);
     const chunkSize = Math.max(8, Math.ceil(words.length / 4));
     for (let i = 0; i < words.length; i += chunkSize) {
@@ -38,7 +52,6 @@ export function parseAnyPromptToVideo(
     }
   } else {
     // Short one-liner prompt: expand into a 3-part viral mini-story
-    const titleCore = cleanText.replace(/^[a-z]/, (c) => c.toUpperCase());
     sceneTexts = [
       `Here is the untold truth about ${cleanText.toLowerCase()} that almost nobody knows.`,
       `Most people believe the exact opposite, but here is what actually happens behind the scenes.`,
@@ -79,30 +92,34 @@ export function parseAnyPromptToVideo(
 
   const emojis = ['🤯🔥', '💀👀', '⚡🚀', '👑💎', '🎯✨', '😱🚨'];
 
-  // 2. Generate Scenes
+  // 2. Generate Scenes with High-Res AI Art + Instant Procedural SVG Fallback
   const scenes: Scene[] = finalSceneTexts.map((text, idx) => {
     const wordCount = text.split(/\s+/).length;
-    // Calculate realistic reading duration (approx 2.8 words per second, min 3s, max 6s)
     const duration = Math.min(6.0, Math.max(3.2, Number((wordCount / 2.8).toFixed(1))));
+    const emotion = idx === 0 ? 'shocked' : idx % 2 === 0 ? 'heroic' : 'confident';
+    const visualPrompt = `${text}, vertical 9:16 cinematic framing, vibrant lighting, highly detailed subject`;
 
     return {
       id: `sc_${Date.now()}_${idx}`,
       sceneNumber: idx + 1,
       durationSec: duration,
       narration: text,
-      visualDescription: `Cinematic 9:16 vertical shot illustrating: ${text}. Hyper-detailed, rich volumetric lighting, high dynamic range.`,
-      visualStyleKeywords: 'Cinematic 9:16, 8k resolution, dramatic rim lighting, vibrant atmosphere',
-      imageUrl: generateCinematicSceneVisual(text, {
+      visualDescription: visualPrompt,
+      visualStyleKeywords: isCartoon
+        ? 'Pixar 3D animated character, rich volumetric studio light'
+        : 'Cinematic 9:16 vertical, dramatic lighting, photorealistic atmosphere',
+      imageUrl: getAIImageUrl(visualPrompt, isCartoon, idx),
+      fallbackSvg: generateCinematicSceneVisual(text, {
         format,
-        isCartoon: format === 'cartoon_story',
-        emotion: idx === 0 ? 'shocked' : idx % 2 === 0 ? 'heroic' : 'confident',
+        isCartoon,
+        emotion,
         sceneNumber: idx + 1
       }),
       cameraEffect: cameraEffects[idx % cameraEffects.length],
       soundEffectCue: soundCues[idx % soundCues.length],
       overlayBadge: badges[idx % badges.length],
       emojiAccent: emojis[idx % emojis.length],
-      characterEmotion: idx === 0 ? 'shocked' : idx % 2 === 0 ? 'heroic' : 'confident'
+      characterEmotion: emotion
     };
   });
 
@@ -121,6 +138,16 @@ export function parseAnyPromptToVideo(
     hashtags,
     format,
     tone,
+    cartoonStyle: isCartoon ? 'pixar_3d' : undefined,
+    characterAvatar: isCartoon ? 'sir_reginald' : undefined,
+    // Enable TikTok Split-Screen (Minecraft parkour / subway surfer) for viral formats
+    splitScreenMode: !isCartoon,
+    splitScreenType: 'minecraft_parkour',
+    captionPreset: isCartoon ? 'cartoon_comic' : 'hormozi_yellow',
+    captionYPercent: !isCartoon ? 52 : 68,
+    captionFontSize: 34,
+    autoEmojis: true,
+    bgmTrack: isCartoon ? 'cartoon_quirky' : 'phonk_drift',
     scenes,
     autoCaptionsEnabled: true,
     subtitleBlocks

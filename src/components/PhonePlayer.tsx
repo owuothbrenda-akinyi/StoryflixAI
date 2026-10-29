@@ -489,6 +489,71 @@ export const PhonePlayer: React.FC<PhonePlayerProps> = ({
             <Maximize2 className="w-4 h-4" />
           </button>
         </div>
+
+        {/* TikTok Viral Enhancements Bar */}
+        <div className="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-xs gap-1.5 flex-wrap">
+          {/* Split Screen Toggle & Type */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => {
+                if (onUpdateProject) {
+                  const nextSplit = !project.splitScreenMode;
+                  onUpdateProject({
+                    splitScreenMode: nextSplit,
+                    splitScreenType: project.splitScreenType || 'minecraft_parkour',
+                    captionYPercent: nextSplit ? 52 : 68
+                  });
+                }
+              }}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
+                project.splitScreenMode
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm shadow-amber-500/10'
+                  : 'bg-zinc-800/60 text-zinc-400 hover:text-zinc-200 border border-zinc-700/50'
+              }`}
+              title="Toggle TikTok viral split-screen with satisfying gameplay"
+            >
+              <Layers className="w-3.5 h-3.5 text-amber-400" />
+              <span>Split-Screen B-Roll</span>
+            </button>
+
+            {project.splitScreenMode && onUpdateProject && (
+              <select
+                value={project.splitScreenType || 'minecraft_parkour'}
+                onChange={(e) => {
+                  onUpdateProject({ splitScreenType: e.target.value as any });
+                }}
+                className="bg-zinc-800 text-[10px] font-bold text-amber-200 border border-amber-500/30 rounded-lg px-2 py-1 outline-none cursor-pointer"
+              >
+                <option value="minecraft_parkour">⛏️ Parkour</option>
+                <option value="subway_surfer">🛹 Subway Surfer</option>
+                <option value="gta_ramp">🏎️ GTA Ramp</option>
+                <option value="satisfying_soap">🧼 Soap Cutting</option>
+              </select>
+            )}
+          </div>
+
+          {/* Reaction Avatar Toggle */}
+          <button
+            onClick={() => {
+              if (onUpdateProject) {
+                const nextAvatar = project.characterAvatar ? undefined : 'sir_reginald';
+                onUpdateProject({
+                  characterAvatar: nextAvatar,
+                  cartoonStyle: nextAvatar ? (project.cartoonStyle || 'pixar_3d') : project.cartoonStyle
+                });
+              }
+            }}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
+              project.characterAvatar
+                ? 'bg-violet-500/20 text-violet-300 border border-violet-500/40 shadow-sm shadow-violet-500/10'
+                : 'bg-zinc-800/60 text-zinc-400 hover:text-zinc-200 border border-zinc-700/50'
+            }`}
+            title="Toggle talking cartoon character reaction overlay"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+            <span>{project.characterAvatar ? 'Avatar: ON' : 'Avatar'}</span>
+          </button>
+        </div>
       </div>
     </div>
   );
