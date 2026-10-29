@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI, Type } from '@google/genai';
+import { generateCinematicSceneVisual } from './src/utils/cinematicArtEngine';
 
 dotenv.config();
 
@@ -299,106 +300,17 @@ app.post('/api/generate-visual', async (req, res) => {
 });
 
 function generateProcedural916Visual(prompt: string, isCartoon: boolean): string {
-  const p = (prompt || '').toLowerCase();
-
-  let bgColors = ['#09090b', '#180e29', '#241038', '#0c0714'];
-  let accent = '#a855f7';
-  let secondary = '#06b6d4';
-  let icon = '🎬';
-  let badge = 'CINEMATIC SCENE';
-
-  if (p.includes('cat') || p.includes('dog') || p.includes('animal') || p.includes('pet')) {
-    bgColors = ['#0f172a', '#1e293b', '#334155', '#0f172a'];
-    accent = '#fbbf24';
-    secondary = '#f43f5e';
-    icon = '🐾';
-    badge = 'ANIMAL STORY';
-  } else if (p.includes('money') || p.includes('rich') || p.includes('business') || p.includes('dollar') || p.includes('crypto')) {
-    bgColors = ['#022c22', '#064e3b', '#065f46', '#022c22'];
-    accent = '#10b981';
-    secondary = '#fbbf24';
-    icon = '💰';
-    badge = 'VIRAL WEALTH';
-  } else if (p.includes('space') || p.includes('galaxy') || p.includes('star') || p.includes('moon') || p.includes('planet')) {
-    bgColors = ['#020617', '#0f172a', '#1e1b4b', '#020617'];
-    accent = '#38bdf8';
-    secondary = '#c084fc';
-    icon = '🚀';
-    badge = 'DEEP SPACE';
-  } else if (p.includes('brain') || p.includes('psycholog') || p.includes('mind') || p.includes('secret') || p.includes('sleep')) {
-    bgColors = ['#180e29', '#2e1065', '#3b0764', '#0f051d'];
-    accent = '#ec4899';
-    secondary = '#8b5cf6';
-    icon = '🧠';
-    badge = 'MIND SECRETS';
-  } else if (p.includes('cyber') || p.includes('tech') || p.includes('future') || p.includes('robot') || p.includes('ai')) {
-    bgColors = ['#050515', '#0a0f2d', '#101c4e', '#030712'];
-    accent = '#00f0ff';
-    secondary = '#ff007f';
-    icon = '🤖';
-    badge = 'CYBER FUTURE';
-  } else if (isCartoon || p.includes('cartoon') || p.includes('anime') || p.includes('dragon') || p.includes('magic')) {
-    bgColors = ['#2e1065', '#581c87', '#701a75', '#3b0764'];
-    accent = '#facc15';
-    secondary = '#f43f5e';
-    icon = '🐉';
-    badge = 'ANIMATED STORY';
+  try {
+    return generateCinematicSceneVisual(prompt, {
+      isCartoon,
+      format: isCartoon ? 'cartoon_story' : undefined
+    });
+  } catch (err) {
+    console.warn('Error in cinematic scene visual generator:', err);
+    // Safe SVG fallback
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%231e1b4b"/><stop offset="50%" stop-color="%23312e81"/><stop offset="100%" stop-color="%230f172a"/></linearGradient></defs><rect width="720" height="1280" fill="url(%23g)"/><circle cx="360" cy="500" r="160" fill="%23a855f7" opacity="0.3"/><text x="360" y="520" font-size="120" text-anchor="middle" dominant-baseline="central">🎬</text><text x="360" y="780" font-family="sans-serif" font-weight="bold" font-size="24" fill="%23c084fc" text-anchor="middle">CINEMATIC 9:16 VISUAL</text></svg>`;
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
   }
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
-  <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="${bgColors[0]}" />
-      <stop offset="30%" stop-color="${bgColors[1]}" />
-      <stop offset="70%" stop-color="${bgColors[2]}" />
-      <stop offset="100%" stop-color="${bgColors[3]}" />
-    </linearGradient>
-    <radialGradient id="glow" cx="50%" cy="42%" r="65%">
-      <stop offset="0%" stop-color="${accent}" stop-opacity="0.4" />
-      <stop offset="50%" stop-color="${secondary}" stop-opacity="0.18" />
-      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
-    </radialGradient>
-    <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="35" />
-    </filter>
-  </defs>
-
-  <!-- Background Gradient & Volumetric Glow -->
-  <rect width="720" height="1280" fill="url(#bg)" />
-  <rect width="720" height="1280" fill="url(#glow)" />
-
-  <!-- Atmospheric Light Spheres -->
-  <circle cx="220" cy="380" r="180" fill="${accent}" opacity="0.28" filter="url(#blur)" />
-  <circle cx="500" cy="520" r="190" fill="${secondary}" opacity="0.25" filter="url(#blur)" />
-
-  <!-- 3D Perspective Floor Grid -->
-  <g stroke="${accent}" stroke-opacity="0.25" stroke-width="2">
-    <line x1="0" y1="880" x2="720" y2="880" />
-    <line x1="0" y1="950" x2="720" y2="950" />
-    <line x1="0" y1="1040" x2="720" y2="1040" />
-    <line x1="0" y1="1150" x2="720" y2="1150" />
-    <line x1="360" y1="820" x2="80" y2="1280" />
-    <line x1="360" y1="820" x2="240" y2="1280" />
-    <line x1="360" y1="820" x2="480" y2="1280" />
-    <line x1="360" y1="820" x2="640" y2="1280" />
-  </g>
-
-  <!-- Glowing Portal Rings -->
-  <circle cx="360" cy="460" r="160" fill="none" stroke="${accent}" stroke-width="4" opacity="0.6" />
-  <circle cx="360" cy="460" r="130" fill="none" stroke="${secondary}" stroke-width="2.5" opacity="0.5" stroke-dasharray="12 10" />
-
-  <!-- Focal 3D Icon Element -->
-  <text x="360" y="505" font-size="130" text-anchor="middle" dominant-baseline="central">${icon}</text>
-
-  <!-- Dramatic Dark Vignette -->
-  <rect width="720" height="1280" fill="black" opacity="0.3" />
-
-  <!-- Theme Header Label -->
-  <rect x="80" y="770" width="560" height="2" fill="${accent}" opacity="0.5" />
-  <text x="360" y="810" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="20" letter-spacing="6" fill="${accent}" text-anchor="middle" opacity="0.95">${badge}</text>
-</svg>`;
-
-  return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
 }
 
 // 4. Viral Script Re-writer / Hook Optimizer Endpoint
