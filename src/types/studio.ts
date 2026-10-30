@@ -1,6 +1,7 @@
 export type VideoFormat =
   | 'viral_facts'
   | 'cartoon_story'
+  | 'fruit_drama'
   | 'reddit_story'
   | 'conspiracy_mystery'
   | 'motivation_mindset'
@@ -14,7 +15,8 @@ export type VideoTone =
   | 'funny_cartoon'
   | 'dark_mystery'
   | 'motivational'
-  | 'absurd_meme';
+  | 'absurd_meme'
+  | 'dramatic_telenovela';
 
 export type CameraEffect =
   | 'zoom_in'
@@ -32,6 +34,10 @@ export type SoundEffectCue =
   | 'chime'
   | 'record_scratch'
   | 'alert_stinger'
+  | 'dramatic_slap'
+  | 'water_splash'
+  | 'gasp'
+  | 'villain_laugh'
   | 'none';
 
 export type CharacterEmotion =
@@ -47,6 +53,7 @@ export type CharacterEmotion =
 
 export type CartoonStyle =
   | 'pixar_3d'
+  | 'fruit_3d'
   | 'anime_manga'
   | 'comic_book'
   | 'chibi_fantasy'

@@ -22,7 +22,19 @@ export function parseAnyPromptToVideo(
   // Smart Format Detection
   let format: VideoFormat = options.format || 'viral_facts';
   if (!options.format) {
-    if (lower.includes('cartoon') || lower.includes('animation') || lower.includes('dragon') || lower.includes('fairy') || lower.includes('kid')) {
+    if (
+      lower.includes('pineapple') ||
+      lower.includes('grape') ||
+      lower.includes('fruit') ||
+      lower.includes('vegetable') ||
+      lower.includes('halastory') ||
+      lower.includes('telenovela') ||
+      lower.includes('pepper') ||
+      lower.includes('carrot') ||
+      lower.includes('soap opera')
+    ) {
+      format = 'fruit_drama';
+    } else if (lower.includes('cartoon') || lower.includes('animation') || lower.includes('dragon') || lower.includes('fairy') || lower.includes('kid')) {
       format = 'cartoon_story';
     } else if (lower.includes('horror') || lower.includes('ghost') || lower.includes('scary') || lower.includes('haunt') || lower.includes('mystery')) {
       format = 'conspiracy_mystery';
@@ -31,8 +43,9 @@ export function parseAnyPromptToVideo(
     }
   }
 
-  const tone: VideoTone = options.tone || (format === 'conspiracy_mystery' ? 'dark_mystery' : 'fast_viral');
-  const isCartoon = format === 'cartoon_story';
+  const isFruitDrama = format === 'fruit_drama';
+  const isCartoon = format === 'cartoon_story' || isFruitDrama;
+  const tone: VideoTone = options.tone || (isFruitDrama ? 'dramatic_telenovela' : format === 'conspiracy_mystery' ? 'dark_mystery' : 'fast_viral');
 
   // 1. Break text into sentences or meaningful chunks
   const sentences = cleanText
@@ -138,16 +151,19 @@ export function parseAnyPromptToVideo(
     hashtags,
     format,
     tone,
-    cartoonStyle: isCartoon ? 'pixar_3d' : undefined,
-    characterAvatar: isCartoon ? 'sir_reginald' : undefined,
-    // Enable TikTok Split-Screen (Minecraft parkour / subway surfer) for viral formats
+    cartoonStyle: isFruitDrama ? 'fruit_3d' : isCartoon ? 'pixar_3d' : undefined,
+    characterName: isFruitDrama ? 'Miss Pineapple' : isCartoon ? 'Sir Reginald' : undefined,
+    characterAvatar: isFruitDrama ? 'pineapple_bride' : isCartoon ? 'sir_reginald' : undefined,
+    // Fruit drama videos fill the full 9:16 frame with cinematic Pixar animation; split-screen for facts
     splitScreenMode: !isCartoon,
     splitScreenType: 'minecraft_parkour',
     captionPreset: isCartoon ? 'cartoon_comic' : 'hormozi_yellow',
     captionYPercent: !isCartoon ? 52 : 68,
     captionFontSize: 34,
     autoEmojis: true,
-    bgmTrack: isCartoon ? 'cartoon_quirky' : 'phonk_drift',
+    bgmTrack: isFruitDrama ? 'soap_opera_drama' : isCartoon ? 'cartoon_quirky' : 'phonk_drift',
+    bgmVolume: 0.45,
+    voiceSpeaker: isFruitDrama ? 'Kore' : isCartoon ? 'Puck' : 'Fenrir',
     scenes,
     autoCaptionsEnabled: true,
     subtitleBlocks

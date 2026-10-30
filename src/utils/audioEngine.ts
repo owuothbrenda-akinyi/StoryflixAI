@@ -83,6 +83,18 @@ class AudioEngine {
       case 'alert_stinger':
         this.playAlertStinger(now);
         break;
+      case 'dramatic_slap':
+        this.playDramaticSlap(now);
+        break;
+      case 'water_splash':
+        this.playWaterSplash(now);
+        break;
+      case 'gasp':
+        this.playDramaticGasp(now);
+        break;
+      case 'villain_laugh':
+        this.playVillainLaugh(now);
+        break;
     }
   }
 
@@ -248,6 +260,76 @@ class AudioEngine {
     });
   }
 
+  // Dramatic Soap Opera Slap
+  private playDramaticSlap(t: number) {
+    if (!this.ctx || !this.sfxGain) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(450, t);
+    osc.frequency.exponentialRampToValueAtTime(80, t + 0.12);
+    gain.gain.setValueAtTime(0.85, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(t);
+    osc.stop(t + 0.19);
+  }
+
+  // Dramatic Fountain Water Splash
+  private playWaterSplash(t: number) {
+    if (!this.ctx || !this.sfxGain) return;
+    [120, 180, 260, 320].forEach((freq, idx) => {
+      const osc = this.ctx!.createOscillator();
+      const gain = this.ctx!.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq * 1.5, t + idx * 0.04);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.4, t + idx * 0.04 + 0.35);
+      gain.gain.setValueAtTime(0.4, t + idx * 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.04 + 0.4);
+      osc.connect(gain);
+      gain.connect(this.sfxGain!);
+      osc.start(t + idx * 0.04);
+      osc.stop(t + idx * 0.04 + 0.42);
+    });
+  }
+
+  // Sharp Dramatic Gasp
+  private playDramaticGasp(t: number) {
+    if (!this.ctx || !this.sfxGain) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(260, t);
+    osc.frequency.linearRampToValueAtTime(520, t + 0.18);
+    gain.gain.setValueAtTime(0.05, t);
+    gain.gain.linearRampToValueAtTime(0.45, t + 0.12);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(t);
+    osc.stop(t + 0.35);
+  }
+
+  // Cartoon Villain Cackle
+  private playVillainLaugh(t: number) {
+    if (!this.ctx || !this.sfxGain) return;
+    [0, 0.12, 0.24, 0.38].forEach((offset, idx) => {
+      const osc = this.ctx!.createOscillator();
+      const gain = this.ctx!.createGain();
+      osc.type = 'sawtooth';
+      const baseFreq = idx % 2 === 0 ? 320 : 280;
+      osc.frequency.setValueAtTime(baseFreq, t + offset);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.7, t + offset + 0.1);
+      gain.gain.setValueAtTime(0.4, t + offset);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.11);
+      osc.connect(gain);
+      gain.connect(this.sfxGain!);
+      osc.start(t + offset);
+      osc.stop(t + offset + 0.12);
+    });
+  }
+
   // --- PROCEDURAL BACKGROUND MUSIC GENERATOR ---
   public startBGM(trackName: string) {
     this.init();
@@ -368,6 +450,35 @@ class AudioEngine {
         osc.start(t);
         osc.stop(t + 0.16);
       }
+    } else if (track === 'soap_opera_drama') {
+      // Dramatic telenovela minor strings arpeggio & heartbeat tension bass
+      if (step % 4 === 0) {
+        // Deep cello bass pulse
+        const bassFreq = step === 0 ? 65.41 : step === 4 ? 55.0 : step === 8 ? 73.42 : 49.0;
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(bassFreq, t);
+        g.gain.setValueAtTime(0.18, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.65);
+        osc.connect(g);
+        g.connect(this.bgmGain);
+        osc.start(t);
+        osc.stop(t + 0.7);
+      }
+      // Dramatic violin arpeggio
+      const violinNotes = [440, 523.25, 659.25, 783.99, 659.25, 523.25, 440, 392];
+      const vFreq = violinNotes[step % violinNotes.length];
+      const vOsc = this.ctx.createOscillator();
+      const vGain = this.ctx.createGain();
+      vOsc.type = 'triangle';
+      vOsc.frequency.setValueAtTime(vFreq, t);
+      vGain.gain.setValueAtTime(0.09, t);
+      vGain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      vOsc.connect(vGain);
+      vGain.connect(this.bgmGain);
+      vOsc.start(t);
+      vOsc.stop(t + 0.24);
     }
   }
 

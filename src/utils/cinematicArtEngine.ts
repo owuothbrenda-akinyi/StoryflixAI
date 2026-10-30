@@ -14,6 +14,47 @@ export function generateCinematicSceneVisual(
   } = {}
 ): string {
   const d = (description || '').toLowerCase();
+
+  const isFruitDrama =
+    options.format === 'fruit_drama' ||
+    d.includes('pineapple') ||
+    d.includes('grape') ||
+    d.includes('fruit') ||
+    d.includes('vegetable') ||
+    d.includes('halastory') ||
+    d.includes('telenovela') ||
+    d.includes('pepper') ||
+    d.includes('carrot');
+
+  if (isFruitDrama) {
+    if (d.includes('fountain') || d.includes('weep') || d.includes('pool') || d.includes('water') || d.includes('crying')) {
+      return generateFruitDramaFountainScene();
+    } else if (d.includes('push') || d.includes('betray') || d.includes('shove') || d.includes('trip') || d.includes('jealous')) {
+      return generateFruitDramaGrapeBetrayalScene();
+    } else if (d.includes('propose') || d.includes('ring') || d.includes('altar') || d.includes('cathedral') || d.includes('church') || d.includes('marry')) {
+      return generateFruitDramaCathedralWeddingScene();
+    } else if (d.includes('spa') || d.includes('carrot') || d.includes('facial') || d.includes('skin') || d.includes('mask') || d.includes('glow')) {
+      return generateFruitDramaCarrotSpaScene();
+    } else if (d.includes('gym') || d.includes('treadmill') || d.includes('fitness') || d.includes('workout') || d.includes('train')) {
+      return generateFruitDramaGymGlowUpScene();
+    } else if (d.includes('ceo') || d.includes('trophy') || d.includes('car') || d.includes('emerald') || d.includes('supercar') || d.includes('boss')) {
+      return generateFruitDramaCeoComebackScene();
+    } else if (d.includes('screen') || d.includes('video') || d.includes('tape') || d.includes('evidence') || d.includes('tv') || d.includes('reveal')) {
+      return generateFruitDramaVideoRevealScene();
+    } else if (d.includes('scream') || d.includes('liar') || d.includes('panic') || d.includes('ruin') || d.includes('rage')) {
+      return generateFruitDramaGrapeScreamScene();
+    }
+    const sceneNum = options.sceneNumber || 1;
+    if (sceneNum === 1) return generateFruitDramaGrapeBetrayalScene();
+    if (sceneNum === 2) return generateFruitDramaFountainScene();
+    if (sceneNum === 3) return generateFruitDramaCathedralWeddingScene();
+    if (sceneNum === 4) return generateFruitDramaCarrotSpaScene();
+    if (sceneNum === 5) return generateFruitDramaGymGlowUpScene();
+    if (sceneNum === 6) return generateFruitDramaCeoComebackScene();
+    if (sceneNum === 7) return generateFruitDramaVideoRevealScene();
+    return generateFruitDramaGrapeScreamScene();
+  }
+
   const isCartoon = options.isCartoon || options.format === 'cartoon_story' || d.includes('cartoon') || d.includes('animated') || d.includes('pixar');
 
   if (isCartoon) {
@@ -56,11 +97,27 @@ export function generateCinematicSceneVisual(
   return generateAtmosphericMovieStill(description);
 }
 
-export function getAIImageUrl(prompt: string, isCartoon: boolean = false, seed?: number): string {
+export function getAIImageUrl(prompt: string, formatOrCartoon?: boolean | string, seed?: number): string {
   const clean = prompt.replace(/[^\w\s,]/gi, ' ').trim().slice(0, 160);
-  const aesthetic = isCartoon
-    ? 'Pixar 3D cute cartoon character animation, vertical 9:16 portrait, cinematic studio lighting, highly detailed'
-    : 'ultra-realistic 9:16 cinematic movie still, 8k, dramatic shadows, volumetric lighting, shot on 35mm lens';
+  const pLower = clean.toLowerCase();
+
+  const isFruit =
+    formatOrCartoon === 'fruit_drama' ||
+    pLower.includes('pineapple') ||
+    pLower.includes('grape') ||
+    pLower.includes('fruit') ||
+    pLower.includes('vegetable') ||
+    pLower.includes('halastory') ||
+    pLower.includes('pepper') ||
+    pLower.includes('carrot');
+
+  let aesthetic = 'ultra-realistic 9:16 cinematic movie still, 8k, dramatic shadows, volumetric lighting, shot on 35mm lens';
+  if (isFruit) {
+    aesthetic = 'Pixar 3D animated anthropomorphic fruit character, human body with detailed fruit head, sparkling bridal gown or luxury tuxedo, dramatic soap opera lighting, vertical 9:16, masterpiece, 8k render';
+  } else if (formatOrCartoon === true || formatOrCartoon === 'cartoon_story') {
+    aesthetic = 'Pixar 3D cute cartoon character animation, vertical 9:16 portrait, cinematic studio lighting, highly detailed';
+  }
+
   const fullPrompt = `${aesthetic}, ${clean}`;
   let hash = 0;
   for (let i = 0; i < prompt.length; i++) {
@@ -946,3 +1003,506 @@ function generateMedievalCastleScene(): string {
 </svg>`;
   return encodeSvg(svg);
 }
+
+/** 18. Fruit & Veg Drama: Scene 1 - Lady Grape Betrayal Push */
+function generateFruitDramaGrapeBetrayalScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <linearGradient id="skyVilla" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="40%" stop-color="#bae6fd"/>
+      <stop offset="70%" stop-color="#fed7aa"/>
+      <stop offset="100%" stop-color="#fef08a"/>
+    </linearGradient>
+    <radialGradient id="fountainWater" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="60%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Villa Sky & Luxury Estate -->
+  <rect width="720" height="1280" fill="url(#skyVilla)"/>
+  <rect x="0" y="700" width="720" height="580" fill="#f1f5f9"/>
+
+  <!-- Luxury Mansion Facade -->
+  <rect x="80" y="320" width="560" height="420" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="3"/>
+  <rect x="140" y="380" width="70" height="140" rx="35" fill="#38bdf8" opacity="0.6"/>
+  <rect x="250" y="380" width="70" height="140" rx="35" fill="#38bdf8" opacity="0.6"/>
+  <rect x="400" y="380" width="70" height="140" rx="35" fill="#38bdf8" opacity="0.6"/>
+  <rect x="510" y="380" width="70" height="140" rx="35" fill="#38bdf8" opacity="0.6"/>
+
+  <!-- Marble Courtyard Fountain -->
+  <ellipse cx="360" cy="850" rx="260" ry="90" fill="#e2e8f0" stroke="#94a3b8" stroke-width="4"/>
+  <ellipse cx="360" cy="840" rx="240" ry="75" fill="url(#fountainWater)"/>
+  <path d="M360 840 Q380 720 360 620 Q340 720 360 840" fill="#38bdf8" opacity="0.6"/>
+
+  <!-- Lady Grape pushing (Left) -->
+  <g transform="translate(230, 680)">
+    <!-- Grape Cluster Head -->
+    <circle cx="0" cy="-140" r="45" fill="#7c3aed"/>
+    <circle cx="-25" cy="-155" r="28" fill="#6d28d9"/>
+    <circle cx="25" cy="-155" r="28" fill="#8b5cf6"/>
+    <circle cx="-20" cy="-125" r="25" fill="#9333ea"/>
+    <circle cx="20" cy="-125" r="25" fill="#a855f7"/>
+    <!-- Leaf crown -->
+    <path d="M-15 -190 Q0 -220 20 -195 Q0 -175 -15 -190" fill="#22c55e"/>
+    <!-- Smirking face -->
+    <ellipse cx="-12" cy="-140" rx="6" ry="8" fill="#1e1b4b"/>
+    <ellipse cx="12" cy="-140" rx="6" ry="8" fill="#1e1b4b"/>
+    <path d="M-8 -120 Q6 -110 16 -122" stroke="#f43f5e" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- Purple Sparkle Slit Gown Body -->
+    <path d="M-25 -90 L25 -90 L35 70 L-35 70 Z" fill="#6d28d9"/>
+    <path d="M-10 0 L35 70 L-20 70 Z" fill="#4c1d95"/>
+    <!-- Pushing arms -->
+    <line x1="25" y1="-70" x2="90" y2="-50" stroke="#f472b6" stroke-width="12" stroke-linecap="round"/>
+  </g>
+
+  <!-- Miss Pineapple falling backward into fountain (Right) -->
+  <g transform="translate(460, 710) rotate(22)">
+    <!-- Pineapple Head with textured diamonds -->
+    <ellipse cx="0" cy="-140" rx="42" ry="52" fill="#eab308"/>
+    <path d="M-30 -160 L30 -120 M-30 -120 L30 -160 M-35 -140 L35 -140" stroke="#ca8a04" stroke-width="3"/>
+    <!-- Green spiky pineapple crown -->
+    <polygon points="-30,-190 0,-250 -10,-190 20,-240 10,-190 35,-220 25,-190" fill="#15803d"/>
+    <!-- Big Shocked Cartoon Eyes -->
+    <ellipse cx="-14" cy="-145" rx="10" ry="14" fill="#ffffff"/>
+    <ellipse cx="14" cy="-145" rx="10" ry="14" fill="#ffffff"/>
+    <circle cx="-14" cy="-145" r="6" fill="#1e1b4b"/>
+    <circle cx="14" cy="-145" r="6" fill="#1e1b4b"/>
+    <!-- Open Gasp Mouth -->
+    <ellipse cx="0" cy="-115" rx="12" ry="15" fill="#881337"/>
+    <!-- White Wedding Dress with Veil -->
+    <path d="M-35 -85 L35 -85 L65 80 L-65 80 Z" fill="#ffffff" stroke="#e2e8f0" stroke-width="3"/>
+    <path d="M-40 -120 Q-70 0 -50 80" stroke="#ffffff" stroke-width="4" fill="none" opacity="0.8"/>
+  </g>
+
+  <!-- Dramatic Splash Particles -->
+  <circle cx="430" cy="820" r="14" fill="#38bdf8" opacity="0.8"/>
+  <circle cx="490" cy="800" r="10" fill="#38bdf8" opacity="0.8"/>
+  <circle cx="530" cy="840" r="16" fill="#bae6fd" opacity="0.9"/>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" letter-spacing="4" fill="#f43f5e" text-anchor="middle">SCENE 1 // THE FOUNTAIN BETRAYAL</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 19. Fruit & Veg Drama: Scene 2 - Pineapple Crying in Fountain */
+function generateFruitDramaFountainScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <radialGradient id="sadGlow" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="60%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+    <linearGradient id="marbleFountain" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#sadGlow)"/>
+
+  <!-- Fountain Pedestal & Flowing Water -->
+  <ellipse cx="360" cy="880" rx="300" ry="110" fill="url(#marbleFountain)" stroke="#cbd5e1" stroke-width="6"/>
+  <ellipse cx="360" cy="860" rx="275" ry="90" fill="#0284c7" opacity="0.8"/>
+  <path d="M360 520 L380 780 L340 780 Z" fill="#94a3b8"/>
+  <!-- Water Cascades -->
+  <path d="M350 560 Q300 700 240 850" stroke="#bae6fd" stroke-width="6" fill="none" opacity="0.8"/>
+  <path d="M370 560 Q420 700 480 850" stroke="#bae6fd" stroke-width="6" fill="none" opacity="0.8"/>
+
+  <!-- Miss Pineapple Bride Sitting Crying in Fountain Water -->
+  <g transform="translate(360, 720)">
+    <!-- Wet Soaked White Bridal Gown -->
+    <path d="M-75 60 Q0 120 75 60 L110 140 Q0 170 -110 140 Z" fill="#ffffff" opacity="0.95"/>
+    <path d="M-40 0 L40 0 L75 80 L-75 80 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <!-- Soaked lace arms -->
+    <path d="M-40 10 Q-65 40 -45 60 M40 10 Q65 40 45 60" stroke="#f1f5f9" stroke-width="10" stroke-linecap="round"/>
+
+    <!-- Pineapple Head -->
+    <ellipse cx="0" cy="-80" rx="55" ry="68" fill="#eab308"/>
+    <path d="M-40 -110 L40 -50 M-40 -50 L40 -110 M-50 -80 L50 -80" stroke="#a16207" stroke-width="3"/>
+    <!-- Drooping soggy green crown -->
+    <polygon points="-35,-140 -5,-195 -15,-145 15,-185 10,-140 35,-170 25,-140" fill="#15803d"/>
+
+    <!-- Weeping Big Disney Eyes -->
+    <ellipse cx="-20" cy="-85" rx="14" ry="18" fill="#ffffff"/>
+    <ellipse cx="20" cy="-85" rx="14" ry="18" fill="#ffffff"/>
+    <circle cx="-20" cy="-82" r="9" fill="#1e1b4b"/>
+    <circle cx="20" cy="-82" r="9" fill="#1e1b4b"/>
+    <circle cx="-16" cy="-87" r="4" fill="#ffffff"/>
+    <circle cx="24" cy="-87" r="4" fill="#ffffff"/>
+
+    <!-- Giant Streaming Blue Tears -->
+    <path d="M-20 -70 Q-30 -30 -22 10" stroke="#38bdf8" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M20 -70 Q30 -30 22 10" stroke="#38bdf8" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+    <!-- Heartbroken Trembling Mouth -->
+    <path d="M-18 -45 Q0 -60 18 -45" stroke="#991b1b" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" letter-spacing="4" fill="#38bdf8" text-anchor="middle">SCENE 2 // RUINED BRIDE WEEPS IN THE WATER</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 20. Fruit & Veg Drama: Scene 3 - Stolen Groom Cathedral Proposal */
+function generateFruitDramaCathedralWeddingScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <radialGradient id="cathedralGold" cx="50%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="40%" stop-color="#d97706"/>
+      <stop offset="80%" stop-color="#451a03"/>
+      <stop offset="100%" stop-color="#1c1917"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Cathedral Backdrop with Golden Chandelier -->
+  <rect width="720" height="1280" fill="url(#cathedralGold)"/>
+  
+  <!-- Chandelier -->
+  <g transform="translate(360, 200)" fill="#fef08a">
+    <ellipse cx="0" cy="0" rx="140" ry="25" fill="#f59e0b"/>
+    <circle cx="-100" cy="30" r="10"/>
+    <circle cx="-50" cy="40" r="12"/>
+    <circle cx="0" cy="45" r="14"/>
+    <circle cx="50" cy="40" r="12"/>
+    <circle cx="100" cy="30" r="10"/>
+  </g>
+
+  <!-- Sir Bell Pepper on Knee Proposing (Left) -->
+  <g transform="translate(250, 750)">
+    <!-- Green Bell Pepper Head -->
+    <path d="M-40 -120 C-45 -170 0 -185 0 -165 C0 -185 45 -170 40 -120 C40 -80 0 -70 0 -70 C0 -70 -40 -80 -40 -120 Z" fill="#16a34a"/>
+    <rect x="-6" y="-195" width="12" height="24" rx="4" fill="#15803d"/>
+    <!-- Smitten Cartoon Eyes -->
+    <ellipse cx="-15" cy="-130" rx="7" ry="10" fill="#ffffff"/>
+    <ellipse cx="15" cy="-130" rx="7" ry="10" fill="#ffffff"/>
+    <circle cx="-13" cy="-130" r="5" fill="#1e1b4b"/>
+    <circle cx="17" cy="-130" r="5" fill="#1e1b4b"/>
+    <!-- Tuxedo Body -->
+    <path d="M-30 -60 L30 -60 L45 80 L-45 80 Z" fill="#09090b"/>
+    <polygon points="-12,-60 0,-30 12,-60" fill="#ffffff"/>
+    <!-- Red Bowtie -->
+    <polygon points="-10,-55 10,-45 -10,-45 10,-55" fill="#dc2626"/>
+    <!-- Extended Hand with Velvet Ring Box -->
+    <rect x="50" y="-30" width="28" height="24" rx="6" fill="#7f1d1d"/>
+    <circle cx="64" cy="-35" r="7" stroke="#fbbf24" stroke-width="3" fill="#67e8f9"/>
+  </g>
+
+  <!-- Lady Grape accepting with smug expression (Right) -->
+  <g transform="translate(470, 680)">
+    <!-- Grape Cluster Head -->
+    <circle cx="0" cy="-150" r="48" fill="#7c3aed"/>
+    <circle cx="-28" cy="-165" r="28" fill="#6d28d9"/>
+    <circle cx="28" cy="-165" r="28" fill="#8b5cf6"/>
+    <circle cx="0" cy="-125" r="26" fill="#a855f7"/>
+    <!-- Gown -->
+    <path d="M-35 -90 L35 -90 L55 130 L-55 130 Z" fill="#6d28d9"/>
+    <!-- Evil Flirt Smirk -->
+    <ellipse cx="-14" cy="-150" rx="6" ry="9" fill="#1e1b4b"/>
+    <ellipse cx="14" cy="-150" rx="6" ry="9" fill="#1e1b4b"/>
+    <path d="M-10 -125 Q4 -115 14 -128" stroke="#f43f5e" stroke-width="4" fill="none"/>
+  </g>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" letter-spacing="4" fill="#fbbf24" text-anchor="middle">SCENE 3 // SIR PEPPER PROPOSES TO LADY GRAPE</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 21. Fruit & Veg Drama: Scene 4 - Dr. Carrot Luxury Spa Makeover */
+function generateFruitDramaCarrotSpaScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <linearGradient id="spaClean" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fdf4ff"/>
+      <stop offset="50%" stop-color="#fae8ff"/>
+      <stop offset="100%" stop-color="#f0abfc"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#spaClean)"/>
+  
+  <!-- Modern Spa Clinic Mirrors & Shelves with Serums -->
+  <rect x="80" y="240" width="560" height="280" rx="24" fill="#ffffff" stroke="#e879f9" stroke-width="3"/>
+  <circle cx="200" cy="380" r="16" fill="#38bdf8"/>
+  <circle cx="250" cy="380" r="16" fill="#4ade80"/>
+  <circle cx="300" cy="380" r="16" fill="#facc15"/>
+
+  <!-- Spa Bed with Miss Pineapple lying back -->
+  <rect x="100" y="720" width="380" height="140" rx="20" fill="#fdf2f8" stroke="#f472b6" stroke-width="4"/>
+  <g transform="translate(260, 680) rotate(-15)">
+    <!-- Pineapple Head -->
+    <ellipse cx="0" cy="0" rx="55" ry="65" fill="#facc15"/>
+    <!-- Glowing Golden Mud Mask on face -->
+    <ellipse cx="0" cy="10" rx="35" ry="35" fill="#fef08a" opacity="0.85"/>
+    <!-- Cucumber Slices on Eyes -->
+    <circle cx="-18" cy="5" r="14" fill="#4ade80" stroke="#16a34a" stroke-width="3"/>
+    <circle cx="18" cy="5" r="14" fill="#4ade80" stroke="#16a34a" stroke-width="3"/>
+    <!-- Pink Silk Bathrobe -->
+    <path d="M-60 60 L60 60 L70 120 L-70 120 Z" fill="#f472b6"/>
+  </g>
+
+  <!-- Dr. Carrot Esthetician applying glowing facial brush (Right) -->
+  <g transform="translate(540, 640)">
+    <!-- Orange Carrot Head tapering down -->
+    <polygon points="-40,-130 40,-130 0,-40" fill="#ea580c"/>
+    <!-- Green bushy carrot top hair -->
+    <path d="M-25 -130 Q-40 -190 -20 -200 Q0 -180 -10 -130 M0 -130 Q0 -210 20 -195 Q10 -170 10 -130 M15 -130 Q40 -190 35 -175" stroke="#15803d" stroke-width="8" stroke-linecap="round"/>
+    <!-- Professional Cartoon Face -->
+    <circle cx="-14" cy="-110" r="6" fill="#1e1b4b"/>
+    <circle cx="14" cy="-110" r="6" fill="#1e1b4b"/>
+    <!-- White Esthetician Lab Coat -->
+    <path d="M-35 -30 L35 -30 L45 130 L-45 130 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <!-- Holding skincare applicator wand -->
+    <line x1="-35" y1="20" x2="-120" y2="10" stroke="#fbbf24" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="-125" cy="8" r="12" fill="#fef08a" opacity="0.9"/>
+  </g>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" letter-spacing="4" fill="#e879f9" text-anchor="middle">SCENE 4 // DR. CARROT LUXURY SPA MAKEOVER</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 22. Fruit & Veg Drama: Scene 5 - Gym Training Glow-up */
+function generateFruitDramaGymGlowUpScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <linearGradient id="gymNeon" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#09090b"/>
+      <stop offset="50%" stop-color="#18181b"/>
+      <stop offset="100%" stop-color="#27272a"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#gymNeon)"/>
+
+  <!-- Neon Fitness Lighting Strips -->
+  <line x1="80" y1="200" x2="640" y2="200" stroke="#f43f5e" stroke-width="6"/>
+  <line x1="120" y1="230" x2="600" y2="230" stroke="#38bdf8" stroke-width="4"/>
+
+  <!-- Modern High-Tech Treadmill -->
+  <polygon points="160,820 560,820 620,950 100,950" fill="#3f3f46" stroke="#71717a" stroke-width="4"/>
+  <rect x="520" y="650" width="20" height="200" fill="#71717a"/>
+  <rect x="480" y="640" width="90" height="40" rx="8" fill="#06b6d4"/>
+
+  <!-- Miss Pineapple Running Fiercely in Athleisure Sportswear -->
+  <g transform="translate(360, 640)">
+    <!-- Spiky Crown with sweatband -->
+    <polygon points="-30,-150 0,-210 -10,-150 20,-200 10,-150 35,-180" fill="#22c55e"/>
+    <rect x="-45" y="-140" width="90" height="18" rx="6" fill="#f43f5e"/>
+
+    <!-- Pineapple Head -->
+    <ellipse cx="0" cy="-80" rx="50" ry="60" fill="#eab308"/>
+    <!-- Fierce Determined Eyes -->
+    <ellipse cx="-16" cy="-85" rx="8" ry="10" fill="#1e1b4b"/>
+    <ellipse cx="16" cy="-85" rx="8" ry="10" fill="#1e1b4b"/>
+    <path d="M-25 -100 L-8 -92 M25 -100 L8 -92" stroke="#713f12" stroke-width="4" stroke-linecap="round"/>
+    
+    <!-- Neon Yellow/Green Sports Crop Top & Leggings -->
+    <path d="M-28 -20 L28 -20 L22 30 L-22 30 Z" fill="#facc15"/>
+    <path d="M-22 35 L-40 140 L-10 140 L-5 70 L5 70 L10 140 L40 140 L22 35 Z" fill="#16a34a"/>
+    <!-- Running Arms -->
+    <line x1="-28" y1="-10" x2="-65" y2="30" stroke="#fef08a" stroke-width="10" stroke-linecap="round"/>
+    <line x1="28" y1="-10" x2="65" y2="-20" stroke="#fef08a" stroke-width="10" stroke-linecap="round"/>
+  </g>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" letter-spacing="4" fill="#facc15" text-anchor="middle">SCENE 5 // FITNESS GLOW-UP TRAINING MONTAGE</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 23. Fruit & Veg Drama: Scene 6 - CEO Comeback with Supercar & Trophy */
+function generateFruitDramaCeoComebackScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <linearGradient id="penthouseSunset" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="40%" stop-color="#4c1d95"/>
+      <stop offset="70%" stop-color="#be185d"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#penthouseSunset)"/>
+
+  <!-- Sleek Luxury Sports Car Profile (Left/Bottom) -->
+  <g transform="translate(80, 800)">
+    <path d="M0 80 Q100 20 220 20 L380 40 Q480 50 540 90 L540 120 L0 120 Z" fill="#09090b" stroke="#f59e0b" stroke-width="3"/>
+    <circle cx="120" cy="115" r="40" fill="#18181b" stroke="#e2e8f0" stroke-width="8"/>
+    <circle cx="440" cy="115" r="40" fill="#18181b" stroke="#e2e8f0" stroke-width="8"/>
+  </g>
+
+  <!-- Miss Pineapple as Glamorous CEO Boss (Right/Center) -->
+  <g transform="translate(440, 620)">
+    <!-- Pineapple Head with Golden Crown -->
+    <ellipse cx="0" cy="-140" rx="48" ry="60" fill="#eab308"/>
+    <polygon points="-30,-200 0,-260 -10,-200 20,-250 10,-200 35,-230" fill="#15803d"/>
+    <!-- Chic Designer Sunglasses -->
+    <rect x="-35" y="-150" width="30" height="18" rx="6" fill="#09090b"/>
+    <rect x="5" y="-150" width="30" height="18" rx="6" fill="#09090b"/>
+    <line x1="-5" y1="-142" x2="5" y2="-142" stroke="#fbbf24" stroke-width="3"/>
+    <!-- Confident Smirk -->
+    <path d="M-8 -115 Q4 -105 16 -118" stroke="#dc2626" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+    <!-- Haute Couture Emerald Green Tailored Suit -->
+    <path d="M-35 -80 L35 -80 L45 80 L-45 80 Z" fill="#047857"/>
+    <polygon points="-15,-80 0,-40 15,-80" fill="#ffffff"/>
+    <path d="M-25 80 L-35 190 L-10 190 L-5 120 L5 120 L10 190 L35 190 L25 80 Z" fill="#047857"/>
+    <!-- High Heels -->
+    <path d="M-35 190 L-40 215 L-20 215 Z" fill="#065f46"/>
+    <path d="M35 190 L40 215 L20 215 Z" fill="#065f46"/>
+
+    <!-- Holding Giant Golden Championship Trophy -->
+    <g transform="translate(-80, -40)">
+      <polygon points="-25,0 25,0 18,-45 -18,-45" fill="#facc15" stroke="#ca8a04" stroke-width="3"/>
+      <rect x="-8" y="0" width="16" height="25" fill="#ca8a04"/>
+      <rect x="-20" y="25" width="40" height="15" rx="3" fill="#854d0e"/>
+      <path d="M-22 -35 Q-38 -20 -18 -5" stroke="#facc15" stroke-width="4" fill="none"/>
+      <path d="M22 -35 Q38 -20 18 -5" stroke="#facc15" stroke-width="4" fill="none"/>
+    </g>
+  </g>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" letter-spacing="4" fill="#34d399" text-anchor="middle">SCENE 6 // THE BOSS-GIRL CEO COMEBACK</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 24. Fruit & Veg Drama: Scene 7 - The Security Video Reveal */
+function generateFruitDramaVideoRevealScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <radialGradient id="ballroom" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="50%" stop-color="#b45309"/>
+      <stop offset="100%" stop-color="#18181b"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#ballroom)"/>
+
+  <!-- Giant 85-inch 4K Video Display Screen -->
+  <g transform="translate(110, 360)">
+    <!-- Stand -->
+    <rect x="230" y="380" width="40" height="180" fill="#3f3f46"/>
+    <ellipse cx="250" cy="560" rx="90" ry="20" fill="#27272a"/>
+    <!-- Outer TV frame -->
+    <rect x="0" y="0" width="500" height="380" rx="14" fill="#09090b" stroke="#f59e0b" stroke-width="5"/>
+    <!-- Screen showing Grape pushing Pineapple into fountain (Surveillance Footage) -->
+    <rect x="15" y="15" width="470" height="350" rx="8" fill="#1e293b"/>
+    <!-- CCTV Watermark -->
+    <text x="35" y="55" font-family="'Courier New', monospace" font-size="18" fill="#ef4444" font-weight="bold">🔴 CCTV REC // GARDEN FOUNTAIN</text>
+    
+    <!-- Mini representation of Grape pushing Pineapple inside TV -->
+    <circle cx="160" cy="200" r="28" fill="#7c3aed"/> <!-- Grape -->
+    <line x1="180" y1="200" x2="260" y2="210" stroke="#f472b6" stroke-width="8"/>
+    <ellipse cx="300" cy="220" rx="28" ry="36" fill="#eab308"/> <!-- Pineapple falling -->
+    <ellipse cx="300" cy="290" rx="90" ry="25" fill="#0284c7" opacity="0.7"/> <!-- Fountain pool -->
+  </g>
+
+  <!-- Miss Pineapple standing beside TV in Emerald Gown Pointing Accusingly -->
+  <g transform="translate(140, 780)">
+    <ellipse cx="0" cy="-140" rx="42" ry="52" fill="#eab308"/>
+    <polygon points="-25,-190 0,-240 15,-190" fill="#15803d"/>
+    <path d="M-30 -80 L30 -80 L50 140 L-50 140 Z" fill="#047857"/>
+    <!-- Pointing hand -->
+    <line x1="30" y1="-60" x2="110" y2="-90" stroke="#fef08a" stroke-width="10" stroke-linecap="round"/>
+  </g>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" letter-spacing="4" fill="#ef4444" text-anchor="middle">SCENE 7 // THE SECURITY TAPE REVEAL</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 25. Fruit & Veg Drama: Scene 8 - Lady Grape Screaming in Ruin */
+function generateFruitDramaGrapeScreamScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <radialGradient id="screamingRage" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="45%" stop-color="#881337"/>
+      <stop offset="85%" stop-color="#2e1065"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#screamingRage)"/>
+
+  <!-- Dramatic Speed Action Lines -->
+  <g stroke="#ffffff" stroke-width="3" opacity="0.35">
+    <line x1="0" y1="0" x2="300" y2="400"/>
+    <line x1="720" y1="0" x2="420" y2="400"/>
+    <line x1="0" y1="1280" x2="300" y2="700"/>
+    <line x1="720" y1="1280" x2="420" y2="700"/>
+  </g>
+
+  <!-- Extreme Close-Up: Lady Grape Screaming in Despair & Horror -->
+  <g transform="translate(360, 560)">
+    <!-- Grape Cluster Head -->
+    <circle cx="0" cy="-60" r="95" fill="#7c3aed"/>
+    <circle cx="-65" cy="-90" r="55" fill="#6d28d9"/>
+    <circle cx="65" cy="-90" r="55" fill="#8b5cf6"/>
+    <circle cx="-50" cy="0" r="50" fill="#9333ea"/>
+    <circle cx="50" cy="0" r="50" fill="#a855f7"/>
+
+    <!-- Ruined Tattered White Bridal Veil -->
+    <path d="M-80 -140 Q-160 -40 -120 120" stroke="#ffffff" stroke-width="8" fill="none" opacity="0.8"/>
+    <path d="M80 -140 Q160 -40 120 120" stroke="#ffffff" stroke-width="8" fill="none" opacity="0.8"/>
+
+    <!-- Wide Terrified Cartoon Eyes with Dilated Pupils -->
+    <ellipse cx="-35" cy="-65" rx="26" ry="34" fill="#ffffff" stroke="#9333ea" stroke-width="4"/>
+    <ellipse cx="35" cy="-65" rx="26" ry="34" fill="#ffffff" stroke="#9333ea" stroke-width="4"/>
+    <circle cx="-35" cy="-65" r="10" fill="#1e1b4b"/>
+    <circle cx="35" cy="-65" r="10" fill="#1e1b4b"/>
+
+    <!-- Giant Screaming Horror Mouth -->
+    <path d="M-45 -10 Q0 -35 45 -10 Q40 75 0 85 Q-40 75 -45 -10 Z" fill="#4c0519" stroke="#be123c" stroke-width="5"/>
+    <rect x="-25" y="-5" width="50" height="15" rx="4" fill="#ffffff"/> <!-- Top teeth -->
+    <rect x="-20" y="55" width="40" height="12" rx="4" fill="#ffffff"/> <!-- Bottom teeth -->
+    <!-- Uvula -->
+    <circle cx="0" cy="18" r="8" fill="#f43f5e"/>
+
+    <!-- Trembling hands clutched to face -->
+    <ellipse cx="-110" cy="10" rx="25" ry="40" fill="#f472b6" transform="rotate(25 -110 10)"/>
+    <ellipse cx="110" cy="10" rx="25" ry="40" fill="#f472b6" transform="rotate(-25 110 10)"/>
+  </g>
+
+  <!-- Sir Bell Pepper storming off in the background ("YOU'RE A LIAR!") -->
+  <g transform="translate(180, 920)" opacity="0.85">
+    <ellipse cx="0" cy="0" rx="20" ry="26" fill="#16a34a"/>
+    <path d="M-15 25 L15 25 L25 90 L-25 90 Z" fill="#09090b"/>
+  </g>
+  <rect x="220" y="880" width="220" height="50" rx="14" fill="#ef4444"/>
+  <text x="330" y="912" font-family="'Outfit', sans-serif" font-weight="900" font-size="18" fill="#ffffff" text-anchor="middle">"YOU'RE A LIAR!"</text>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" letter-spacing="4" fill="#f43f5e" text-anchor="middle">SCENE 8 // JUSTICE & RUIN: LADY GRAPE EXPOSED</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
