@@ -14,15 +14,18 @@ import {
   AlertCircle,
   Check
 } from 'lucide-react';
-import { CameraEffect, CharacterEmotion, Scene, SoundEffectCue } from '../types/studio';
+import { CameraEffect, CharacterEmotion, Project, Scene, SoundEffectCue } from '../types/studio';
 import { audioEngine } from '../utils/audioEngine';
 import { generateCinematicSceneVisual } from '../utils/cinematicArtEngine';
+import { CinematicPipelineSection } from './CinematicPipelineSection';
 
 interface SceneInspectorProps {
   scene: Scene;
+  project?: Project;
   isCartoonMode: boolean;
   onUpdateScene: (updatedFields: Partial<Scene>) => void;
   onGenerateSingleVoice: (scene: Scene) => Promise<void>;
+  onOpenFullPipelineModal?: () => void;
 }
 
 const CAMERA_EFFECTS: { id: CameraEffect; label: string; desc: string }[] = [
@@ -69,9 +72,11 @@ const EMOTIONS: { id: CharacterEmotion; label: string; emoji: string }[] = [
 
 export const SceneInspector: React.FC<SceneInspectorProps> = ({
   scene,
+  project,
   isCartoonMode,
   onUpdateScene,
-  onGenerateSingleVoice
+  onGenerateSingleVoice,
+  onOpenFullPipelineModal
 }) => {
   const [isGeneratingVisual, setIsGeneratingVisual] = useState(false);
   const [visualError, setVisualError] = useState<string | null>(null);
@@ -374,6 +379,18 @@ export const SceneInspector: React.FC<SceneInspectorProps> = ({
           </div>
         </div>
       )}
+
+      {/* 4-Stage Cinematic AI Video Pipeline (Flux + Kling 4.0 / Runway) */}
+      <CinematicPipelineSection
+        scene={scene}
+        project={project || ({
+          title: 'Untitled Video',
+          format: isCartoonMode ? 'cartoon_story' : 'viral_facts',
+          tone: 'fast_viral'
+        } as any)}
+        onUpdateScene={onUpdateScene}
+        onOpenFullPipelineModal={onOpenFullPipelineModal}
+      />
 
       {/* Visual Artwork & Scene Imagery */}
       <div className="flex flex-col gap-2 pt-2 border-t border-zinc-800">

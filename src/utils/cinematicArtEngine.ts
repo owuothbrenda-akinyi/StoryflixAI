@@ -55,6 +55,32 @@ export function generateCinematicSceneVisual(
     return generateFruitDramaGrapeScreamScene();
   }
 
+  const isRealHuman =
+    options.format === 'real_human' ||
+    d.includes('real human') ||
+    d.includes('real person') ||
+    d.includes('real actor') ||
+    d.includes('actor') ||
+    d.includes('actress') ||
+    d.includes('ugc') ||
+    d.includes('influencer') ||
+    d.includes('presenter') ||
+    d.includes('talking head') ||
+    d.includes('vlogger');
+
+  if (isRealHuman && !isFruitDrama) {
+    if (d.includes('fitness') || d.includes('gym') || d.includes('workout') || d.includes('training')) {
+      return generateRealHumanFitnessScene();
+    } else if (d.includes('business') || d.includes('ceo') || d.includes('money') || d.includes('office') || d.includes('finance')) {
+      return generateRealHumanCeoScene();
+    } else if (d.includes('street') || d.includes('city') || d.includes('vlog') || d.includes('outdoor')) {
+      return generateRealHumanStreetVlogScene();
+    } else if (d.includes('dramatic') || d.includes('story') || d.includes('movie') || d.includes('intense')) {
+      return generateRealHumanStorytellerScene();
+    }
+    return generateRealHumanPresenterScene(d.includes('podcast') ? 'podcast' : 'studio');
+  }
+
   const isCartoon = options.isCartoon || options.format === 'cartoon_story' || d.includes('cartoon') || d.includes('animated') || d.includes('pixar');
 
   if (isCartoon) {
@@ -111,9 +137,26 @@ export function getAIImageUrl(prompt: string, formatOrCartoon?: boolean | string
     pLower.includes('pepper') ||
     pLower.includes('carrot');
 
+  const isRealHuman =
+    formatOrCartoon === 'real_human' ||
+    pLower.includes('real human') ||
+    pLower.includes('real person') ||
+    pLower.includes('real actor') ||
+    pLower.includes('ugc') ||
+    pLower.includes('creator') ||
+    pLower.includes('influencer') ||
+    pLower.includes('presenter') ||
+    pLower.includes('vlogger') ||
+    pLower.includes('actor') ||
+    pLower.includes('actress') ||
+    pLower.includes('talking head') ||
+    pLower.includes('podcast host');
+
   let aesthetic = 'ultra-realistic 9:16 cinematic movie still, 8k, dramatic shadows, volumetric lighting, shot on 35mm lens';
   if (isFruit) {
     aesthetic = 'Pixar 3D animated anthropomorphic fruit character, human body with detailed fruit head, sparkling bridal gown or luxury tuxedo, dramatic soap opera lighting, vertical 9:16, masterpiece, 8k render';
+  } else if (isRealHuman) {
+    aesthetic = 'raw authentic vertical 9:16 mobile phone video frame of a real living human person looking into camera, natural skin texture, pore details, real facial expression, shot on iPhone 16 Pro 4k video 35mm lens, natural studio or room lighting, authentic TikTok UGC creator video still, photorealistic photograph, 8k, absolute realism, no 3D animation, no cartoon, no CGI';
   } else if (formatOrCartoon === true || formatOrCartoon === 'cartoon_story') {
     aesthetic = 'Pixar 3D cute cartoon character animation, vertical 9:16 portrait, cinematic studio lighting, highly detailed';
   }
@@ -1505,4 +1548,347 @@ function generateFruitDramaGrapeScreamScene(): string {
 </svg>`;
   return encodeSvg(svg);
 }
+
+/** 26. Real Human Creator: Studio Presenter & UGC Talking Head */
+function generateRealHumanPresenterScene(variant: 'studio' | 'podcast' = 'studio'): string {
+  const isPodcast = variant === 'podcast';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <radialGradient id="ringLightGlow" cx="50%" cy="38%" r="60%">
+      <stop offset="0%" stop-color="#fff1f2"/>
+      <stop offset="35%" stop-color="#e0e7ff"/>
+      <stop offset="70%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#09090b"/>
+    </radialGradient>
+    <linearGradient id="warmSlat" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#451a03"/>
+      <stop offset="50%" stop-color="#78350f"/>
+      <stop offset="100%" stop-color="#271005"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Studio Background -->
+  <rect width="720" height="1280" fill="url(#ringLightGlow)"/>
+
+  <!-- Acoustic Wood Slat Panels on Right Wall -->
+  <g opacity="0.4">
+    <rect x="520" y="0" width="16" height="1280" fill="url(#warmSlat)"/>
+    <rect x="555" y="0" width="16" height="1280" fill="url(#warmSlat)"/>
+    <rect x="590" y="0" width="16" height="1280" fill="url(#warmSlat)"/>
+    <rect x="625" y="0" width="16" height="1280" fill="url(#warmSlat)"/>
+    <rect x="660" y="0" width="16" height="1280" fill="url(#warmSlat)"/>
+  </g>
+
+  <!-- Warm LED Ambient Light Strip on Left -->
+  <rect x="60" y="180" width="8" height="850" rx="4" fill="#f43f5e" opacity="0.85"/>
+  <rect x="40" y="150" width="48" height="910" fill="#f43f5e" opacity="0.12"/>
+
+  <!-- Ring Light Catchlight Glow in Background -->
+  <circle cx="360" cy="460" r="280" stroke="#ffffff" stroke-width="6" fill="none" opacity="0.15"/>
+  <circle cx="360" cy="460" r="274" stroke="#e0e7ff" stroke-width="2" fill="none" opacity="0.3"/>
+
+  <!-- Real Human Presenter (Chest-Up Portrait) -->
+  <g transform="translate(360, 520)">
+    <!-- Shoulders & Casual Studio Creator Jacket / Crewneck -->
+    <path d="M-190 280 Q-160 120 -80 80 L80 80 Q160 120 190 280 L230 460 L-230 460 Z" fill="#18181b" stroke="#27272a" stroke-width="2"/>
+    <path d="M-50 85 Q0 135 50 85 L35 180 Q0 210 -35 180 Z" fill="#f8fafc"/> <!-- White crewneck undershirt -->
+
+    <!-- Neck & Jawline with realistic skin tones -->
+    <rect x="-42" y="0" width="84" height="90" rx="20" fill="#e2a178"/>
+    <path d="M-42 60 Q0 85 42 60" fill="#cc8258"/> <!-- Neck shadow -->
+
+    <!-- Head & Face Structure -->
+    <ellipse cx="0" cy="-60" rx="95" ry="125" fill="#f1b590"/>
+    <ellipse cx="0" cy="-60" rx="90" ry="120" fill="#f6c2a0"/>
+
+    <!-- Natural Hair with highlights -->
+    <path d="M-98 -80 Q-95 -180 0 -195 Q95 -180 98 -80 Q110 -20 90 20 Q70 -110 0 -130 Q-70 -110 -90 20 Q-110 -20 -98 -80 Z" fill="#261b17"/>
+    <path d="M-40 -170 Q0 -185 40 -165" stroke="#452c20" stroke-width="8" stroke-linecap="round" fill="none"/>
+
+    <!-- Realistic Expressive Human Eyes (Direct Eye Contact to Camera) -->
+    <!-- Left Eye -->
+    <ellipse cx="-38" cy="-60" rx="20" ry="12" fill="#ffffff"/>
+    <circle cx="-36" cy="-60" r="10" fill="#45271a"/> <!-- Iris -->
+    <circle cx="-36" cy="-60" r="5" fill="#09090b"/> <!-- Pupil -->
+    <circle cx="-32" cy="-63" r="3.5" fill="#ffffff"/> <!-- Ring light reflection catchlight! -->
+    <path d="M-58 -78 Q-38 -90 -18 -80" stroke="#1c130e" stroke-width="5" stroke-linecap="round" fill="none"/> <!-- Eyebrow -->
+
+    <!-- Right Eye -->
+    <ellipse cx="38" cy="-60" rx="20" ry="12" fill="#ffffff"/>
+    <circle cx="36" cy="-60" r="10" fill="#45271a"/>
+    <circle cx="36" cy="-60" r="5" fill="#09090b"/>
+    <circle cx="40" cy="-63" r="3.5" fill="#ffffff"/> <!-- Ring light catchlight -->
+    <path d="M18 -80 Q38 -90 58 -78" stroke="#1c130e" stroke-width="5" stroke-linecap="round" fill="none"/>
+
+    <!-- Nose Contour -->
+    <path d="M-4 -60 L-7 -10 Q0 0 7 -10" stroke="#d5865c" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+    <!-- Natural Speaking Smile / Engaging Mouth -->
+    <path d="M-30 25 Q0 48 30 25 Q15 28 0 28 Q-15 28 -30 25 Z" fill="#be4d5c"/>
+    <rect x="-18" y="27" width="36" height="6" rx="2" fill="#ffffff"/> <!-- Teeth line -->
+  </g>
+
+  <!-- Podcast Microphone Setup (if podcast variant) -->
+  ${isPodcast ? `
+  <g transform="translate(480, 820)">
+    <rect x="-15" y="0" width="30" height="280" fill="#27272a"/>
+    <rect x="-35" y="-90" width="70" height="110" rx="28" fill="#18181b" stroke="#3f3f46" stroke-width="3"/>
+    <line x1="-30" y1="-45" x2="30" y2="-45" stroke="#ef4444" stroke-width="3"/> <!-- Red mic ring -->
+    <ellipse cx="0" cy="-90" rx="35" ry="16" fill="#3f3f46"/>
+  </g>` : `
+  <!-- Wireless Lapel Mic on Collar -->
+  <rect x="352" y="650" width="16" height="24" rx="4" fill="#09090b" stroke="#52525b" stroke-width="1.5"/>
+  <circle cx="360" cy="658" r="3" fill="#22c55e"/> <!-- Green power light -->
+  `}
+
+  <!-- Realistic UGC TikTok Creator Overlay Details -->
+  <g transform="translate(40, 160)">
+    <rect x="0" y="0" width="170" height="34" rx="17" fill="#09090b" opacity="0.65"/>
+    <circle cx="18" cy="17" r="10" fill="#38bdf8"/>
+    <path d="M14 17 L17 20 L23 14" stroke="#ffffff" stroke-width="2" fill="none"/>
+    <text x="36" y="22" font-family="'Plus Jakarta Sans', sans-serif" font-weight="bold" font-size="12" fill="#ffffff">Verified Creator</text>
+  </g>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" letter-spacing="4" fill="#38bdf8" text-anchor="middle">REAL HUMAN CREATOR // 4K 60FPS UGC VIDEO</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 27. Real Human Creator: High-Performance Fitness Coach */
+function generateRealHumanFitnessScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <linearGradient id="gymBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="40%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#gymBg)"/>
+
+  <!-- Gym Mirrors & Dumbbell Rack Background -->
+  <rect x="60" y="220" width="600" height="420" rx="16" fill="#18181b" stroke="#334155" stroke-width="3"/>
+  <line x1="80" y1="560" x2="640" y2="560" stroke="#64748b" stroke-width="12"/>
+  <circle cx="150" cy="530" r="26" fill="#475569"/>
+  <circle cx="230" cy="530" r="32" fill="#475569"/>
+  <circle cx="510" cy="530" r="32" fill="#475569"/>
+  <circle cx="590" cy="530" r="26" fill="#475569"/>
+
+  <!-- Real Human Fitness Coach -->
+  <g transform="translate(360, 560)">
+    <!-- Athletic Shoulders & Black Fitted Tank Top -->
+    <path d="M-180 260 Q-150 110 -70 70 L70 70 Q150 110 180 260 L200 480 L-200 480 Z" fill="#09090b"/>
+    <path d="M-60 70 Q0 120 60 70 L50 220 Q0 240 -50 220 Z" fill="#18181b"/>
+
+    <!-- Toned arms with natural skin tone & muscle contour -->
+    <path d="M-140 130 Q-180 240 -160 360" stroke="#e09f7a" stroke-width="36" stroke-linecap="round" fill="none"/>
+    <path d="M140 130 Q180 240 160 360" stroke="#e09f7a" stroke-width="36" stroke-linecap="round" fill="none"/>
+
+    <!-- Neck & Jawline -->
+    <rect x="-40" y="-10" width="80" height="90" rx="18" fill="#e09f7a"/>
+    <!-- Head -->
+    <ellipse cx="0" cy="-80" rx="90" ry="118" fill="#f4b896"/>
+
+    <!-- Athletic Ponytail / Hair -->
+    <path d="M-92 -100 Q-85 -190 0 -200 Q85 -190 92 -100 Q70 -130 0 -135 Q-70 -130 -92 -100 Z" fill="#1a1412"/>
+    <circle cx="95" cy="-80" r="30" fill="#1a1412"/> <!-- Ponytail knot -->
+
+    <!-- Focused Motivated Eyes looking at camera -->
+    <ellipse cx="-35" cy="-85" rx="18" ry="11" fill="#ffffff"/>
+    <ellipse cx="35" cy="-85" rx="18" ry="11" fill="#ffffff"/>
+    <circle cx="-35" cy="-85" r="9" fill="#2d1d17"/>
+    <circle cx="35" cy="-85" r="9" fill="#2d1d17"/>
+    <circle cx="-32" cy="-88" r="3" fill="#ffffff"/>
+    <circle cx="38" cy="-88" r="3" fill="#ffffff"/>
+    <!-- Sweat Sheen Highlight -->
+    <ellipse cx="25" cy="-130" rx="14" ry="4" fill="#ffffff" opacity="0.35" transform="rotate(-15 25 -130)"/>
+
+    <!-- Confident Coach Smile -->
+    <path d="M-28 -5 Q0 22 28 -5" stroke="#b91c1c" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" letter-spacing="4" fill="#facc15" text-anchor="middle">REAL HUMAN CREATOR // HIGH-ENERGY FITNESS</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 28. Real Human Creator: Business CEO & Executive Mindset */
+function generateRealHumanCeoScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <linearGradient id="skylineSunset" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="40%" stop-color="#1e1b4b"/>
+      <stop offset="75%" stop-color="#312e81"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#skylineSunset)"/>
+
+  <!-- High-Rise Floor-to-Ceiling Boardroom Windows with Skyline Silhouettes -->
+  <g fill="#09090b" opacity="0.8">
+    <rect x="80" y="380" width="80" height="500"/>
+    <rect x="180" y="300" width="100" height="580"/>
+    <rect x="300" y="420" width="90" height="460"/>
+    <rect x="410" y="260" width="110" height="620"/>
+    <rect x="540" y="340" width="90" height="540"/>
+  </g>
+  <!-- Window Glass Grid Beams -->
+  <line x1="260" y1="0" x2="260" y2="1000" stroke="#475569" stroke-width="6" opacity="0.5"/>
+  <line x1="500" y1="0" x2="500" y2="1000" stroke="#475569" stroke-width="6" opacity="0.5"/>
+
+  <!-- Real Human Executive in Tailored Dark Navy Suit -->
+  <g transform="translate(360, 580)">
+    <!-- Suit Shoulders & Lapels -->
+    <path d="M-190 280 Q-160 110 -80 70 L80 70 Q160 110 190 280 L220 480 L-220 480 Z" fill="#0f172a" stroke="#1e293b" stroke-width="3"/>
+    <polygon points="-70,70 -15,180 -40,70" fill="#1e293b"/> <!-- Left Lapel -->
+    <polygon points="70,70 15,180 40,70" fill="#1e293b"/> <!-- Right Lapel -->
+    <polygon points="-25,70 0,160 25,70" fill="#ffffff"/> <!-- White Dress Shirt -->
+    <polygon points="-8,95 0,180 8,95" fill="#e11d48"/> <!-- Silk Tie -->
+
+    <!-- Neck -->
+    <rect x="-38" y="-5" width="76" height="85" rx="16" fill="#df9f7b"/>
+    <!-- Head -->
+    <ellipse cx="0" cy="-75" rx="88" ry="115" fill="#f2b998"/>
+
+    <!-- Professional Styled Hair -->
+    <path d="M-88 -90 Q-70 -185 0 -190 Q70 -185 88 -90 Q50 -125 0 -130 Q-50 -125 -88 -90 Z" fill="#1f1815"/>
+
+    <!-- Sharp Confident Eyes -->
+    <ellipse cx="-34" cy="-80" rx="17" ry="11" fill="#ffffff"/>
+    <ellipse cx="34" cy="-80" rx="17" ry="11" fill="#ffffff"/>
+    <circle cx="-34" cy="-80" r="8" fill="#1f2937"/>
+    <circle cx="34" cy="-80" r="8" fill="#1f2937"/>
+    <circle cx="-31" cy="-83" r="3" fill="#ffffff"/>
+    <circle cx="37" cy="-83" r="3" fill="#ffffff"/>
+
+    <!-- Subordinate confident smile -->
+    <path d="M-24 5 Q0 24 24 5" stroke="#991b1b" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" letter-spacing="4" fill="#fbbf24" text-anchor="middle">REAL HUMAN CREATOR // EXECUTIVE BUSINESS</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 29. Real Human Creator: Street Vlog & Outdoor POV */
+function generateRealHumanStreetVlogScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <radialGradient id="cityBokeh" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#fed7aa"/>
+      <stop offset="35%" stop-color="#f472b6"/>
+      <stop offset="70%" stop-color="#4338ca"/>
+      <stop offset="100%" stop-color="#09090b"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#cityBokeh)"/>
+
+  <!-- City Street Bokeh Circles (Streetlights & Cars) -->
+  <g opacity="0.6">
+    <circle cx="120" cy="380" r="45" fill="#fde047"/>
+    <circle cx="220" cy="420" r="35" fill="#f43f5e"/>
+    <circle cx="580" cy="360" r="50" fill="#38bdf8"/>
+    <circle cx="640" cy="460" r="40" fill="#a855f7"/>
+    <circle cx="160" cy="540" r="28" fill="#fbbf24"/>
+  </g>
+
+  <!-- Real Human Creator Holding Smartphone Vlog Selfie Camera -->
+  <g transform="translate(360, 560)">
+    <!-- Casual Hoodie Shoulders -->
+    <path d="M-180 270 Q-150 120 -75 80 L75 80 Q150 120 180 270 L210 470 L-210 470 Z" fill="#374151" stroke="#4b5563" stroke-width="3"/>
+    <ellipse cx="0" cy="95" rx="55" ry="25" fill="#1f2937"/> <!-- Hood collar -->
+
+    <!-- Extended Arm holding selfie camera -->
+    <path d="M120 220 Q220 290 280 420" stroke="#e09f7a" stroke-width="42" stroke-linecap="round" fill="none"/>
+
+    <!-- Head & Face -->
+    <rect x="-38" y="0" width="76" height="85" rx="16" fill="#df9f7b"/>
+    <ellipse cx="0" cy="-70" rx="92" ry="120" fill="#f3b897"/>
+
+    <!-- Casual Tousled Hair with Wind Flow -->
+    <path d="M-92 -80 Q-80 -185 10 -190 Q90 -175 92 -80 Q60 -115 10 -125 Q-60 -115 -92 -80 Z" fill="#2d1f1a"/>
+
+    <!-- Wide Happy Authentic Vlogger Eyes -->
+    <ellipse cx="-36" cy="-75" rx="18" ry="12" fill="#ffffff"/>
+    <ellipse cx="36" cy="-75" rx="18" ry="12" fill="#ffffff"/>
+    <circle cx="-34" cy="-75" r="9" fill="#3b2219"/>
+    <circle cx="38" cy="-75" r="9" fill="#3b2219"/>
+    <circle cx="-30" cy="-78" r="3.5" fill="#ffffff"/>
+    <circle cx="42" cy="-78" r="3.5" fill="#ffffff"/>
+
+    <!-- Big Infectious Creator Smile -->
+    <path d="M-32 15 Q0 48 32 15 Q18 20 0 20 Q-18 20 -32 15 Z" fill="#be123c"/>
+    <rect x="-20" y="18" width="40" height="7" rx="3" fill="#ffffff"/>
+  </g>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" letter-spacing="4" fill="#f472b6" text-anchor="middle">REAL HUMAN CREATOR // STREET VLOG POV</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
+/** 30. Real Human Actor: Dramatic Storyteller Monologue */
+function generateRealHumanStorytellerScene(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <defs>
+    <radialGradient id="rembrandt" cx="35%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#fde047" stop-opacity="0.25"/>
+      <stop offset="50%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="720" height="1280" fill="url(#rembrandt)"/>
+
+  <!-- Dramatic Cinematic Rembrandt Human Actor Close-up -->
+  <g transform="translate(360, 560)">
+    <!-- Dark Textured Coat / Turtleneck -->
+    <path d="M-180 270 Q-140 100 -70 60 L70 60 Q140 100 180 270 L210 460 L-210 460 Z" fill="#09090b"/>
+    <rect x="-45" y="45" width="90" height="70" rx="16" fill="#18181b"/> <!-- Black turtleneck -->
+
+    <!-- Neck & Jaw -->
+    <rect x="-38" y="-10" width="76" height="80" rx="16" fill="#cc8561"/>
+    <!-- Head -->
+    <ellipse cx="0" cy="-80" rx="90" ry="122" fill="#d88f6a"/>
+    <!-- Rembrandt Triangle of Light on shadowed right cheek -->
+    <polygon points="20,-50 48,-30 25,-20" fill="#f5ba99" opacity="0.7"/>
+
+    <!-- Hair -->
+    <path d="M-92 -85 Q-85 -190 0 -195 Q85 -190 92 -85 Q65 -125 0 -130 Q-65 -125 -92 -85 Z" fill="#140f0d"/>
+
+    <!-- Intense Cinematic Eyes -->
+    <ellipse cx="-35" cy="-85" rx="17" ry="10" fill="#ffffff"/>
+    <ellipse cx="35" cy="-85" rx="17" ry="10" fill="#ffffff"/>
+    <circle cx="-35" cy="-85" r="8" fill="#1e1b4b"/>
+    <circle cx="35" cy="-85" r="8" fill="#1e1b4b"/>
+    <circle cx="-32" cy="-88" r="3" fill="#fbbf24"/>
+    <circle cx="38" cy="-88" r="3" fill="#fbbf24"/>
+
+    <!-- Intense Serious Mouth Line -->
+    <path d="M-22 10 Q0 8 22 10" stroke="#7f1d1d" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- Letterbox bars -->
+  <rect x="0" y="0" width="720" height="90" fill="#000000"/>
+  <rect x="0" y="1190" width="720" height="90" fill="#000000"/>
+  <text x="360" y="1160" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" letter-spacing="4" fill="#fbbf24" text-anchor="middle">REAL HUMAN ACTOR // CINEMATIC MONOLOGUE</text>
+</svg>`;
+  return encodeSvg(svg);
+}
+
 

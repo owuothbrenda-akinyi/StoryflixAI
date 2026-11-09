@@ -1,5 +1,5 @@
 import React from 'react';
-import { Video, Sparkles, Download, Layers, Wand2, PlayCircle, Palette, Flame } from 'lucide-react';
+import { Video, Sparkles, Download, Layers, Wand2, PlayCircle, Palette, Flame, UserCheck, Film } from 'lucide-react';
 import { Project, VideoFormat } from '../types/studio';
 import { PRESET_PROJECTS } from '../data/presetTemplates';
 import { PWAInstallButton } from './PWAInstallButton';
@@ -11,6 +11,7 @@ interface HeaderProps {
   onOpenExport: () => void;
   onOpenHookOptimizer: () => void;
   onChangeFormat: (format: VideoFormat) => void;
+  onOpenPipelineModal?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -19,7 +20,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenGenerator,
   onOpenExport,
   onOpenHookOptimizer,
-  onChangeFormat
+  onChangeFormat,
+  onOpenPipelineModal
 }) => {
   return (
     <header className="min-h-[70px] py-2 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between sticky top-0 z-40">
@@ -42,11 +44,33 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Studio Mode Switcher */}
-        <div className="hidden md:flex items-center bg-zinc-900 border border-zinc-800 p-0.5 rounded-lg text-xs font-semibold">
+        <div className="hidden lg:flex items-center bg-zinc-900 border border-zinc-800 p-0.5 rounded-lg text-xs font-semibold">
+          <button
+            onClick={() => onChangeFormat('real_human')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+              project.format === 'real_human'
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-sm'
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <UserCheck className="w-3.5 h-3.5" />
+            Real Human Creators
+          </button>
+          <button
+            onClick={() => onChangeFormat('fruit_drama')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+              project.format === 'fruit_drama'
+                ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-sm'
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <span>🍍</span>
+            3D Fruit Drama
+          </button>
           <button
             onClick={() => onChangeFormat('viral_facts')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
-              project.format !== 'cartoon_story'
+              project.format !== 'cartoon_story' && project.format !== 'fruit_drama' && project.format !== 'real_human'
                 ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-sm'
                 : 'text-zinc-400 hover:text-white'
             }`}
@@ -63,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Palette className="w-3.5 h-3.5" />
-            Cartoon Story Creator
+            Cartoon Story
           </button>
         </div>
       </div>
@@ -108,6 +132,19 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* PWA Install / Add to Home Screen Button */}
         <PWAInstallButton />
+
+        {/* Cinematic Video Pipeline Trigger */}
+        {onOpenPipelineModal && (
+          <button
+            onClick={onOpenPipelineModal}
+            className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-violet-500/40 text-violet-300 hover:text-white hover:bg-violet-950/40 transition-colors cursor-pointer"
+            title="Open 4-Stage Cinematic Video Pipeline (Flux + Kling 4.0)"
+          >
+            <Film className="w-3.5 h-3.5 text-violet-400" />
+            <span className="hidden md:inline">Kling & Flux Pipeline</span>
+            <span className="md:hidden">Pipeline</span>
+          </button>
+        )}
 
         {/* Generate Video Modal Trigger */}
         <button

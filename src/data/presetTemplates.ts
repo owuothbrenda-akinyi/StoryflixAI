@@ -150,10 +150,322 @@ export const CHARACTER_PRESETS: CharacterPreset[] = [
       <path d="M42 64 Q50 72 58 64" stroke="#7c2d12" stroke-width="3" stroke-linecap="round"/>
       <rect x="36" y="80" width="28" height="20" rx="4" fill="#ffffff"/>
     </svg>`
+  },
+  {
+    id: 'sarah_creator',
+    name: 'Sarah Jenkins',
+    tagline: 'Tech & Lifestyle UGC Creator (iPhone 16 Pro 4K, Los Angeles)',
+    style: 'real_human',
+    isRealHuman: true,
+    colorScheme: { primary: '#06b6d4', secondary: '#0f172a', accent: '#f43f5e' },
+    avatarSvg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="sarah_bg" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#fdba74"/>
+          <stop offset="100%" stop-color="#c2410c"/>
+        </radialGradient>
+      </defs>
+      <circle cx="50" cy="50" r="46" fill="url(#sarah_bg)"/>
+      <circle cx="50" cy="50" r="44" stroke="#ffffff" stroke-width="2" stroke-opacity="0.4"/>
+      <path d="M22 92 C26 72 38 68 50 68 C62 68 74 72 78 92 Z" fill="#0f172a"/>
+      <rect x="44" y="54" width="12" height="18" fill="#fed7aa" rx="2"/>
+      <ellipse cx="50" cy="42" rx="17" ry="21" fill="#fed7aa"/>
+      <path d="M30 40 C30 20 40 18 50 18 C60 18 70 20 70 40 C70 54 67 68 65 74 C62 68 62 48 58 44 C50 44 42 44 38 52 C35 68 35 74 30 74 C31 64 30 52 30 40 Z" fill="#78350f"/>
+      <ellipse cx="43" cy="40" rx="3.5" ry="2.5" fill="#451a03"/>
+      <ellipse cx="57" cy="40" rx="3.5" ry="2.5" fill="#451a03"/>
+      <circle cx="44" cy="39" r="1" fill="#ffffff"/>
+      <circle cx="58" cy="39" r="1" fill="#ffffff"/>
+      <path d="M39 36 Q43 34 47 36" stroke="#451a03" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M53 36 Q57 34 61 36" stroke="#451a03" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M44 51 Q50 56 56 51" stroke="#e11d48" stroke-width="2.5" stroke-linecap="round"/>
+      <rect x="48" y="70" width="4" height="7" rx="1.5" fill="#38bdf8"/>
+      <circle cx="80" cy="22" r="4" fill="#ef4444"/>
+    </svg>`
+  },
+  {
+    id: 'marcus_finance',
+    name: 'Marcus Vance',
+    tagline: '7-Figure Founder & Mindset Mentor (Wall St, New York)',
+    style: 'real_human',
+    isRealHuman: true,
+    colorScheme: { primary: '#10b981', secondary: '#022c22', accent: '#f59e0b' },
+    avatarSvg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="marcus_bg" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#1e293b"/>
+          <stop offset="100%" stop-color="#090d16"/>
+        </radialGradient>
+      </defs>
+      <circle cx="50" cy="50" r="46" fill="url(#marcus_bg)"/>
+      <path d="M20 92 C24 72 36 66 50 66 C64 66 76 72 80 92 Z" fill="#18181b"/>
+      <polygon points="45,66 55,66 52,86 48,86" fill="#10b981"/>
+      <polygon points="46,66 50,71 54,66" fill="#ffffff"/>
+      <rect x="44" y="52" width="12" height="16" fill="#d97706" rx="2"/>
+      <path d="M34 38 C34 24 42 20 50 20 C58 20 66 24 66 38 C66 52 59 60 50 60 C41 60 34 52 34 38 Z" fill="#d97706"/>
+      <path d="M34 34 C34 20 42 16 50 16 C58 16 66 20 66 34 L66 30 C64 18 56 16 50 16 C44 16 36 18 34 30 Z" fill="#1c1917"/>
+      <path d="M37 46 C37 57 44 61 50 61 C56 61 63 57 63 46 C63 48 58 53 50 53 C42 53 37 48 37 46 Z" fill="#1c1917" opacity="0.85"/>
+      <circle cx="43" cy="38" r="2.5" fill="#0f172a"/>
+      <circle cx="57" cy="38" r="2.5" fill="#0f172a"/>
+      <circle cx="44" cy="37" r="1" fill="#ffffff"/>
+      <circle cx="58" cy="37" r="1" fill="#ffffff"/>
+      <path d="M45 49 Q50 51 55 49" stroke="#78350f" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="34" cy="78" r="2.5" fill="#fbbf24"/>
+    </svg>`
+  },
+  {
+    id: 'elena_actress',
+    name: 'Elena Rostova',
+    tagline: 'Dramatic Monologue & Storytime Actor (London)',
+    style: 'real_human',
+    isRealHuman: true,
+    colorScheme: { primary: '#a855f7', secondary: '#3b0764', accent: '#ec4899' },
+    avatarSvg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="elena_bg" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#4c1d95"/>
+          <stop offset="100%" stop-color="#0f0728"/>
+        </radialGradient>
+      </defs>
+      <circle cx="50" cy="50" r="46" fill="url(#elena_bg)"/>
+      <path d="M22 92 C26 70 38 66 50 66 C62 66 74 70 78 92 Z" fill="#2e1065"/>
+      <rect x="44" y="52" width="12" height="16" fill="#fed7aa"/>
+      <ellipse cx="50" cy="40" rx="16" ry="19" fill="#fed7aa"/>
+      <path d="M31 38 C31 20 40 16 50 16 C60 16 69 20 69 38 C69 56 66 64 64 64 C62 50 60 40 54 36 C48 36 44 42 38 52 C35 58 33 64 31 64 Z" fill="#18181b"/>
+      <circle cx="43" cy="39" r="2.5" fill="#059669"/>
+      <circle cx="57" cy="39" r="2.5" fill="#059669"/>
+      <circle cx="44" cy="38" r="1" fill="#ffffff"/>
+      <circle cx="58" cy="38" r="1" fill="#ffffff"/>
+      <path d="M44 49 Q50 54 56 49" stroke="#be123c" stroke-width="2.8" stroke-linecap="round"/>
+      <path d="M12 20 L40 6 Z" stroke="#a855f7" stroke-width="2" stroke-opacity="0.4"/>
+    </svg>`
+  },
+  {
+    id: 'david_host',
+    name: 'David Chen',
+    tagline: 'Podcast Host & Street Interviewer (Shure SM7B Mic, Austin)',
+    style: 'real_human',
+    isRealHuman: true,
+    colorScheme: { primary: '#f59e0b', secondary: '#1e1b4b', accent: '#3b82f6' },
+    avatarSvg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="david_bg" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#334155"/>
+          <stop offset="100%" stop-color="#0f172a"/>
+        </radialGradient>
+      </defs>
+      <circle cx="50" cy="50" r="46" fill="url(#david_bg)"/>
+      <path d="M22 92 C26 72 38 68 50 68 C62 68 74 72 78 92 Z" fill="#0284c7"/>
+      <path d="M28 42 C28 22 40 18 50 18 C60 18 72 22 72 42" stroke="#1e293b" stroke-width="5" fill="none"/>
+      <rect x="25" y="36" width="7" height="15" rx="3" fill="#3b82f6"/>
+      <rect x="68" y="36" width="7" height="15" rx="3" fill="#3b82f6"/>
+      <rect x="44" y="52" width="12" height="18" fill="#fde68a"/>
+      <ellipse cx="50" cy="40" rx="16" ry="19" fill="#fde68a"/>
+      <path d="M34 32 C34 20 42 17 50 17 C58 17 66 20 66 32 C60 28 40 28 34 32 Z" fill="#18181b"/>
+      <circle cx="43" cy="38" r="2.5" fill="#1e293b"/>
+      <circle cx="57" cy="38" r="2.5" fill="#1e293b"/>
+      <path d="M44 48 Q50 53 56 48" stroke="#78350f" stroke-width="2" stroke-linecap="round"/>
+      <rect x="58" y="62" width="14" height="24" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+      <line x1="65" y1="86" x2="65" y2="98" stroke="#475569" stroke-width="3"/>
+    </svg>`
   }
 ];
 
 export const PRESET_PROJECTS: Project[] = [
+  {
+    id: 'preset_real_human_ugc',
+    title: 'The $10M Morning Routine (Real Human UGC)',
+    viralHook: 'Stop scrolling your phone at 7 AM. Here is what 7-figure founders do instead.',
+    tiktokCaption: 'Real talk: 99% of people destroy their dopamine before even getting out of bed. Switch to this 3-step morning protocol and see what happens. 👤📱⚡ #realhuman #ugc #founderlife #morningroutine #productivity #mindset #fyp #creator',
+    hashtags: ['#realhuman', '#ugc', '#creator', '#morningroutine', '#productivity', '#mindset', '#fyp', '#viral'],
+    format: 'real_human',
+    tone: 'authentic_ugc',
+    cartoonStyle: 'real_human',
+    realHumanMode: true,
+    actorPersona: 'Sarah Jenkins (UGC Creator)',
+    captionPreset: 'bold_white_glow',
+    captionYPercent: 74,
+    captionFontSize: 34,
+    autoEmojis: true,
+    bgmTrack: 'lofi_chill',
+    bgmVolume: 0.35,
+    voiceVolume: 0.98,
+    voiceSpeaker: 'Kore',
+    characterName: 'Sarah Jenkins',
+    characterAvatar: 'sarah_creator',
+    splitScreenMode: false,
+    scenes: [
+      {
+        id: 'sc_rh1',
+        sceneNumber: 1,
+        durationSec: 4.0,
+        narration: 'Stop scrolling your phone at 7 AM! 99% of people fry their dopamine receptors before even brushing their teeth.',
+        visualDescription: 'Real authentic living woman UGC creator holding iPhone 16 Pro looking directly into camera with shocked expressive face in modern bright morning sunlit room.',
+        visualStyleKeywords: 'Shot on iPhone 16 Pro 4k video 35mm lens, natural sunlit bedroom window, authentic living human creator, pore details, real skin texture',
+        imageUrl: generateCinematicSceneVisual('real woman UGC creator shocked looking into phone camera morning room', { format: 'real_human', sceneNumber: 1 }),
+        keyframeImageUrl: generateCinematicSceneVisual('real woman UGC creator shocked looking into phone camera morning room', { format: 'real_human', sceneNumber: 1 }),
+        expandedPrompt: 'Raw authentic vertical 9:16 video frame of real human creator Sarah looking directly into camera with shocked expressive face, natural skin pores, fine hair strands, morning sunlight through bedroom window, volumetric rim lighting, shot on iPhone 16 Pro 4k video 35mm f/1.8 lens, Kodachrome 64 color grading, photorealistic, 8k --ar 9:16 --v 6.0',
+        promptExpansionDetails: {
+          cinematography: 'iPhone 16 Pro 4k, 35mm anamorphic, f/1.8 aperture',
+          lighting: 'Natural morning sunlight with soft warm 5600K key light & rim glow',
+          atmosphere: 'Cinematic bedroom morning depth with subtle dust particle motes',
+          colorGrading: 'Kodachrome 64 vintage tones, high dynamic range, deep shadows',
+          motionGuidance: 'Slow cinematic push-in on subject expression with subtle background parallax'
+        },
+        imageGenModel: 'flux_1',
+        videoGenModel: 'kling_4',
+        motionControl: {
+          type: 'zoom_in',
+          strength: 7,
+          cameraPath: 'Smooth cinematic forward push-in (1.18x) with Kling 4.0 motion interpolation',
+          motionPrompt: 'slow cinematic push in, natural breathing movement, subtle hair flutter, 60fps',
+          fps: 60
+        },
+        pipelineStatus: 'ready',
+        cameraEffect: 'zoom_in',
+        soundEffectCue: 'record_scratch',
+        overlayBadge: 'STOP SCROLLING 🚨',
+        emojiAccent: '📱⚡',
+        characterEmotion: 'shocked',
+        dialogueSpeaker: 'Sarah'
+      },
+      {
+        id: 'sc_rh2',
+        sceneNumber: 2,
+        durationSec: 4.2,
+        narration: 'The top 1% do this exact 3-step morning protocol before touching a single screen or opening emails.',
+        visualDescription: 'Real human female founder sitting at clean modern wood kitchen counter holding warm ceramic coffee mug, natural morning sun flare, authentic 4k portrait.',
+        visualStyleKeywords: 'Authentic 4k video still, real living human person, aesthetic kitchen interior, natural rim lighting, 35mm portrait lens',
+        imageUrl: generateCinematicSceneVisual('real human woman kitchen counter coffee sunlight 4k video still', { format: 'real_human', sceneNumber: 2 }),
+        keyframeImageUrl: generateCinematicSceneVisual('real human woman kitchen counter coffee sunlight 4k video still', { format: 'real_human', sceneNumber: 2 }),
+        expandedPrompt: 'Vertical 9:16 cinematic portrait of female founder sitting at modern kitchen island holding warm ceramic mug, gentle morning steam rising, soft cinematic sun flare, ARRI Alexa Mini LF 35mm lens, f/2.0 aperture, filmic Kodak color grade, hyper-realistic, 8k',
+        promptExpansionDetails: {
+          cinematography: 'ARRI Alexa Mini LF, 35mm f/2.0 prime lens',
+          lighting: 'Golden morning window flare with soft diffusion bounce',
+          atmosphere: 'Aesthetic kitchen interior with soft bokeh and coffee steam',
+          colorGrading: 'Kodak Vision3 500T, rich organic warmth and deep shadows',
+          motionGuidance: 'Smooth lateral slow pan tracking the coffee mug to face'
+        },
+        imageGenModel: 'flux_1',
+        videoGenModel: 'kling_4',
+        motionControl: {
+          type: 'pan_left',
+          strength: 6,
+          cameraPath: 'Kling 4.0 smooth lateral tracking sweep with micro parallax depth',
+          motionPrompt: 'slow pan left, subtle steam drift, 60fps cinematic fluidity',
+          fps: 60
+        },
+        pipelineStatus: 'ready',
+        cameraEffect: 'pan_left',
+        soundEffectCue: 'whoosh',
+        overlayBadge: 'THE 3-STEP PROTOCOL',
+        emojiAccent: '☕💡',
+        characterEmotion: 'confident',
+        dialogueSpeaker: 'Sarah'
+      },
+      {
+        id: 'sc_rh3',
+        sceneNumber: 3,
+        durationSec: 4.0,
+        narration: 'Step one: 500ml ice-cold water with Himalayan sea salt. It immediately recharges your neural mitochondria.',
+        visualDescription: 'Real living human fitness athlete pouring ice cold mineral water in glass tumbler with visible sea salt in bright gym and wellness studio.',
+        visualStyleKeywords: 'Real human gym wellness lifestyle, natural athlete skin texture, high shutter speed water pour, authentic creator vlog',
+        imageUrl: generateCinematicSceneVisual('real human fitness coach drinking ice water gym studio', { format: 'real_human', sceneNumber: 3 }),
+        keyframeImageUrl: generateCinematicSceneVisual('real human fitness coach drinking ice water gym studio', { format: 'real_human', sceneNumber: 3 }),
+        expandedPrompt: 'Vertical 9:16 dynamic shot of fitness athlete pouring ice cold mineral water into glass tumbler, crystalline ice cubes, high shutter speed droplets, bright daylight gym studio, shot on Sony FX6 50mm f/1.4 lens, crisp contrast, 8k resolution',
+        promptExpansionDetails: {
+          cinematography: 'Sony FX6 Cinema Line, 50mm f/1.4 G-Master',
+          lighting: 'High-key daylight wellness studio lighting, crisp specular highlights on water',
+          atmosphere: 'Clean modern fitness aesthetics, condensation droplets on glass',
+          colorGrading: 'Cool clean modern tones, crisp whites, vivid cyan hydration accents',
+          motionGuidance: 'Handheld organic micro-shake following water pouring trajectory'
+        },
+        imageGenModel: 'flux_1',
+        videoGenModel: 'kling_4',
+        motionControl: {
+          type: 'handheld',
+          strength: 6,
+          cameraPath: 'Kling 4.0 organic handheld camera with kinetic micro-jitter',
+          motionPrompt: 'handheld camera movement, water pouring motion, ice clink, 60fps',
+          fps: 60
+        },
+        pipelineStatus: 'ready',
+        cameraEffect: 'shake',
+        soundEffectCue: 'alert_stinger',
+        overlayBadge: 'STEP 1: RE-HYDRATE',
+        emojiAccent: '🧊💧',
+        characterEmotion: 'heroic',
+        dialogueSpeaker: 'Sarah'
+      },
+      {
+        id: 'sc_rh4',
+        sceneNumber: 4,
+        durationSec: 4.5,
+        narration: 'Step two: 10 minutes of direct morning sunlight on your eyes. Zero sunglasses. This hard-resets your biological clock.',
+        visualDescription: 'Real human creator walking outside on urban city street in golden hour morning sunlight looking into handheld vlog camera.',
+        visualStyleKeywords: 'Real human street vlogger, handheld iPhone 16 Pro camera perspective, golden hour cinematic lens flare, natural wind in hair',
+        imageUrl: generateCinematicSceneVisual('real human creator walking street vlog golden hour morning sunlight', { format: 'real_human', sceneNumber: 4 }),
+        keyframeImageUrl: generateCinematicSceneVisual('real human creator walking street vlog golden hour morning sunlight', { format: 'real_human', sceneNumber: 4 }),
+        expandedPrompt: 'POV vertical 9:16 vlog of young creator walking along city avenue bathed in golden hour sunrise, warm sun rays across face, hair blowing in breeze, natural lens flare, iPhone 16 Pro 4k video, authentic TikTok influencer aesthetic, photorealistic',
+        promptExpansionDetails: {
+          cinematography: 'iPhone 16 Pro 4k 60fps, 24mm wide angle perspective',
+          lighting: 'Direct morning sunrise backlight, radiant warm golden hour glow',
+          atmosphere: 'City morning avenue, warm atmospheric haze, optical streak flares',
+          colorGrading: 'Golden hour amber palette, lifted shadows, rich natural skin tone',
+          motionGuidance: 'Dynamic tracking walk with subtle natural walking bounce'
+        },
+        imageGenModel: 'flux_1',
+        videoGenModel: 'kling_4',
+        motionControl: {
+          type: 'pan_right',
+          strength: 6,
+          cameraPath: 'Kling 4.0 tracking sweep with gentle orbital parallax',
+          motionPrompt: 'walking camera tracking, hair moving in breeze, golden sunlight shifts, 60fps',
+          fps: 60
+        },
+        pipelineStatus: 'ready',
+        cameraEffect: 'pan_right',
+        soundEffectCue: 'chime',
+        overlayBadge: 'STEP 2: SUNLIGHT',
+        emojiAccent: '☀️👁️',
+        characterEmotion: 'confident',
+        dialogueSpeaker: 'Sarah'
+      },
+      {
+        id: 'sc_rh5',
+        sceneNumber: 5,
+        durationSec: 4.0,
+        narration: 'Save this video right now, try it tomorrow morning, and comment below how you felt after day one!',
+        visualDescription: 'Real human podcast host and creator sitting in front of Shure SM7B studio microphone pointing directly at camera with confident warm smile.',
+        visualStyleKeywords: 'Real human podcast studio, Shure SM7B mic, neon purple and amber background bokeh, authentic talking head creator video',
+        imageUrl: generateCinematicSceneVisual('real human creator podcast studio microphone pointing at camera', { format: 'real_human', sceneNumber: 5 }),
+        keyframeImageUrl: generateCinematicSceneVisual('real human creator podcast studio microphone pointing at camera', { format: 'real_human', sceneNumber: 5 }),
+        expandedPrompt: 'Vertical 9:16 cinema frame of podcast host in moody creator studio, Shure SM7B microphone in foreground, neon cyan and amber background bokeh, charismatic gesture pointing at lens, ARRI Alexa LF 35mm anamorphic, deep depth of field, 8k',
+        promptExpansionDetails: {
+          cinematography: 'ARRI Alexa LF, 35mm anamorphic prime lens, f/1.4',
+          lighting: 'Dual-tone studio lighting: soft amber key with cyan/purple edge lights',
+          atmosphere: 'Aesthetic creator podcast studio with hexagonal sound panels',
+          colorGrading: 'Cinematic commercial grade, deep ink blacks, crisp highlights',
+          motionGuidance: 'Slow cinematic push-in centering on speaker gesture'
+        },
+        imageGenModel: 'flux_1',
+        videoGenModel: 'kling_4',
+        motionControl: {
+          type: 'push_in',
+          strength: 7,
+          cameraPath: 'Kling 4.0 smooth push-in with focus pull to subject gesture',
+          motionPrompt: 'slow push-in, expressive hand gesture, head nod, 60fps',
+          fps: 60
+        },
+        pipelineStatus: 'ready',
+        cameraEffect: 'zoom_out',
+        soundEffectCue: 'sub_drop',
+        overlayBadge: 'SAVE & TRY TOMORROW',
+        emojiAccent: '👇🔥',
+        characterEmotion: 'heroic',
+        dialogueSpeaker: 'Sarah'
+      }
+    ]
+  },
   {
     id: 'preset_fruit_drama',
     title: 'Pineapple Bride: The Fountain Revenge',

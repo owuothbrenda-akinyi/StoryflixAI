@@ -28,6 +28,7 @@ import { CartoonStudio } from './components/CartoonStudio';
 import { ScriptGeneratorModal } from './components/ScriptGeneratorModal';
 import { HookOptimizerModal } from './components/HookOptimizerModal';
 import { ExportModal } from './components/ExportModal';
+import { CinematicPipelineModal } from './components/CinematicPipelineModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { parseAnyPromptToVideo } from './utils/textToVideoParser';
 import { generateCinematicSceneVisual, getAIImageUrl } from './utils/cinematicArtEngine';
@@ -42,6 +43,7 @@ export default function App() {
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
   const [isHookOptimizerOpen, setIsHookOptimizerOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isPipelineModalOpen, setIsPipelineModalOpen] = useState(false);
 
   // Batch TTS generation state
   const [isGeneratingVoices, setIsGeneratingVoices] = useState(false);
@@ -80,10 +82,26 @@ export default function App() {
     showToast(`Loaded "${preset.title}"`);
   };
 
-  // Handle Mode Change (Viral Shorts vs Cartoon Story)
+  // Handle Mode Change (Real Human vs Fruit Drama vs Viral Shorts vs Cartoon Story)
   const handleChangeFormat = (format: VideoFormat) => {
-    if (format === 'cartoon_story') {
-      const cartoonPreset = PRESET_PROJECTS.find((p) => p.format === 'cartoon_story') || PRESET_PROJECTS[1];
+    if (format === 'real_human') {
+      const realHumanPreset = PRESET_PROJECTS.find((p) => p.format === 'real_human') || PRESET_PROJECTS[0];
+      setProject({
+        ...realHumanPreset,
+        id: `proj_${Date.now()}`
+      });
+      setActiveTab('scene');
+      showToast('Switched to Real Human Creator Studio');
+    } else if (format === 'fruit_drama') {
+      const fruitPreset = PRESET_PROJECTS.find((p) => p.format === 'fruit_drama') || PRESET_PROJECTS[1];
+      setProject({
+        ...fruitPreset,
+        id: `proj_${Date.now()}`
+      });
+      setActiveTab('scene');
+      showToast('Switched to 3D Fruit Drama Studio');
+    } else if (format === 'cartoon_story') {
+      const cartoonPreset = PRESET_PROJECTS.find((p) => p.format === 'cartoon_story') || PRESET_PROJECTS[2];
       setProject({
         ...cartoonPreset,
         id: `proj_${Date.now()}`
@@ -91,7 +109,7 @@ export default function App() {
       setActiveTab('cartoon');
       showToast('Switched to Cartoon Story Studio');
     } else {
-      const viralPreset = PRESET_PROJECTS[0];
+      const viralPreset = PRESET_PROJECTS.find((p) => p.format === 'viral_facts') || PRESET_PROJECTS[0];
       setProject({
         ...viralPreset,
         id: `proj_${Date.now()}`
@@ -111,21 +129,40 @@ export default function App() {
   ) => {
     if (!data.scenes || data.scenes.length === 0) return;
 
+    const isRealHuman = chosenFormat === 'real_human';
+    const isFruit = chosenFormat === 'fruit_drama';
+    const isCartoon = chosenFormat === 'cartoon_story';
+
     const newScenes: Scene[] = data.scenes.map((sc: any, idx: number) => ({
       id: `sc_${Date.now()}_${idx}`,
       sceneNumber: idx + 1,
       durationSec: sc.durationSec || 4.0,
       narration: sc.narration || '',
       visualDescription: sc.visualDescription || '',
-      visualStyleKeywords: sc.visualStyleKeywords || '',
+      visualStyleKeywords: sc.visualStyleKeywords || (isRealHuman ? 'Shot on iPhone 16 Pro 4k video 35mm lens, authentic living human creator' : ''),
       imageUrl:
         sc.imageUrl ||
-        getAIImageUrl(sc.visualDescription || sc.narration || '', chosenFormat === 'cartoon_story', idx),
+        getAIImageUrl(sc.visualDescription || sc.narration || '', chosenFormat, idx),
+      keyframeImageUrl:
+        sc.keyframeImageUrl ||
+        sc.imageUrl ||
+        getAIImageUrl(sc.visualDescription || sc.narration || '', chosenFormat, idx),
+      expandedPrompt: sc.expandedPrompt || sc.visualDescription || sc.narration || '',
+      promptExpansionDetails: sc.promptExpansionDetails,
+      imageGenModel: sc.imageGenModel || 'flux_1',
+      videoGenModel: sc.videoGenModel || 'kling_4',
+      motionControl: sc.motionControl || {
+        type: (sc.cameraEffect || 'zoom_in') as any,
+        strength: 6,
+        cameraPath: `Cinematic ${(sc.cameraEffect || 'zoom_in').replace('_', ' ')} with Kling 4.0 motion interpolation`,
+        fps: 60
+      },
+      pipelineStatus: sc.pipelineStatus || 'ready',
       fallbackSvg:
         sc.fallbackSvg ||
         generateCinematicSceneVisual(sc.visualDescription || sc.narration || '', {
           format: chosenFormat,
-          isCartoon: chosenFormat === 'cartoon_story',
+          isCartoon: isCartoon || isFruit,
           emotion: sc.characterEmotion,
           sceneNumber: idx + 1
         }),
@@ -134,7 +171,7 @@ export default function App() {
       overlayBadge: sc.overlayBadge || 'VIRAL HOOK',
       emojiAccent: sc.emojiAccent || '🔥',
       characterEmotion: sc.characterEmotion || 'shocked',
-      dialogueSpeaker: sc.dialogueSpeaker || (chosenFormat === 'cartoon_story' ? 'Hero' : undefined)
+      dialogueSpeaker: sc.dialogueSpeaker || (isCartoon ? 'Hero' : isRealHuman ? 'Sarah' : undefined)
     }));
 
     const newProject: Project = {
@@ -142,21 +179,24 @@ export default function App() {
       title: data.title || 'Untitled Viral Video',
       viralHook: data.viralHook || '',
       tiktokCaption: data.tiktokCaption || '',
-      hashtags: data.hashtags || ['#fyp', '#viral', '#storyflixAI'],
+      hashtags: data.hashtags || (isRealHuman ? ['#realhuman', '#ugc', '#creator', '#fyp', '#viral'] : ['#fyp', '#viral', '#storyflixAI']),
       format: chosenFormat,
       tone: chosenTone,
       cartoonStyle: chosenCartoonStyle,
-      captionPreset: chosenFormat === 'cartoon_story' ? 'cartoon_comic' : 'hormozi_yellow',
-      captionYPercent: chosenFormat !== 'cartoon_story' ? 52 : 68,
+      realHumanMode: isRealHuman,
+      actorPersona: isRealHuman ? 'Sarah Jenkins (UGC Creator)' : undefined,
+      captionPreset: isRealHuman ? 'bold_white_glow' : isCartoon ? 'cartoon_comic' : 'hormozi_yellow',
+      captionYPercent: isRealHuman ? 74 : (!isCartoon ? 52 : 68),
       captionFontSize: 34,
       autoEmojis: true,
-      splitScreenMode: chosenFormat !== 'cartoon_story',
+      splitScreenMode: !isCartoon && !isFruit && !isRealHuman,
       splitScreenType: 'minecraft_parkour',
-      bgmTrack: data.bgmSuggestion || (chosenFormat === 'cartoon_story' ? 'cartoon_quirky' : 'phonk_drift'),
+      bgmTrack: data.bgmSuggestion || (isFruit ? 'soap_opera_drama' : isRealHuman ? 'lofi_chill' : isCartoon ? 'cartoon_quirky' : 'phonk_drift'),
       bgmVolume: 0.35,
       voiceVolume: 0.95,
-      voiceSpeaker: chosenFormat === 'cartoon_story' ? 'Puck' : 'Fenrir',
-      characterAvatar: chosenFormat === 'cartoon_story' ? 'sir_reginald' : undefined,
+      voiceSpeaker: isFruit ? 'Kore' : isRealHuman ? 'Kore' : isCartoon ? 'Puck' : 'Fenrir',
+      characterAvatar: isFruit ? 'pineapple_bride' : isRealHuman ? 'sarah_creator' : isCartoon ? 'sir_reginald' : undefined,
+      characterName: isFruit ? 'Miss Pineapple' : isRealHuman ? 'Sarah Jenkins' : isCartoon ? 'Sir Reginald' : undefined,
       scenes: newScenes
     };
 
@@ -234,6 +274,7 @@ export default function App() {
         onOpenExport={() => setIsExportOpen(true)}
         onOpenHookOptimizer={() => setIsHookOptimizerOpen(true)}
         onChangeFormat={handleChangeFormat}
+        onOpenPipelineModal={() => setIsPipelineModalOpen(true)}
       />
 
       {/* Main Studio Body: Player + Inspector */}
@@ -339,7 +380,9 @@ export default function App() {
               }`}
             >
               <Palette className="w-4 h-4 text-fuchsia-400" />
-              <span className="text-[11px]">Cartoon</span>
+              <span className="text-[11px]">
+                {project.format === 'real_human' ? 'Creator' : project.format === 'fruit_drama' ? 'Characters' : 'Cartoon'}
+              </span>
             </button>
           </div>
 
@@ -348,9 +391,11 @@ export default function App() {
             {activeTab === 'scene' && activeScene && (
               <SceneInspector
                 scene={activeScene}
+                project={project}
                 isCartoonMode={project.format === 'cartoon_story'}
                 onUpdateScene={updateSelectedScene}
                 onGenerateSingleVoice={handleGenerateSingleVoice}
+                onOpenFullPipelineModal={() => setIsPipelineModalOpen(true)}
               />
             )}
 
@@ -397,6 +442,15 @@ export default function App() {
         isOpen={isExportOpen}
         onClose={() => setIsExportOpen(false)}
         project={project}
+      />
+
+      <CinematicPipelineModal
+        isOpen={isPipelineModalOpen}
+        onClose={() => setIsPipelineModalOpen(false)}
+        project={project}
+        onUpdateProject={updateProject}
+        selectedSceneIndex={selectedSceneIndex}
+        onSelectSceneIndex={setSelectedSceneIndex}
       />
 
       {/* Toast Notification */}

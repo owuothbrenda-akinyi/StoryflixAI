@@ -63,6 +63,14 @@ const CAPTION_PRESETS: {
     previewBg: 'bg-zinc-950',
     previewTextColor: 'text-fuchsia-400',
     previewBorderColor: 'border-blue-500'
+  },
+  {
+    id: 'bold_white_glow',
+    name: 'UGC Clean Bold White',
+    creatorTag: 'Top Choice for Real Human Videos',
+    previewBg: 'bg-zinc-950',
+    previewTextColor: 'text-white',
+    previewBorderColor: 'border-white'
   }
 ];
 

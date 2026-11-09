@@ -23,12 +23,13 @@ interface ScriptGeneratorModalProps {
 }
 
 const INSPIRATION_IDEAS = [
+  { text: '3 morning habits of billionaires that actually work (Real Human UGC)', format: 'real_human', tone: 'authentic_ugc' },
+  { text: 'Why everyone is secretly quitting tech in 2026 (Real Human Creator)', format: 'real_human', tone: 'authentic_ugc' },
+  { text: 'Lady Grape pushed Miss Pineapple into the wedding fountain! 3D Fruit Drama', format: 'fruit_drama', tone: 'dramatic_telenovela' },
   { text: '5 psychological tricks that make anyone respect you instantly', format: 'viral_facts', tone: 'dark_mystery' },
   { text: 'A clumsy medieval knight accidentally steps into a modern pizza shop', format: 'cartoon_story', tone: 'funny_cartoon' },
   { text: 'What actually happens to your body if you drink coffee at 3 AM?', format: 'what_if', tone: 'fast_viral' },
   { text: 'Reddit Confession: I found a secret door behind my college dorm closet', format: 'reddit_story', tone: 'dramatic_suspense' },
-  { text: 'The ruthless morning routine of a 22-year-old self-made millionaire', format: 'motivation_mindset', tone: 'motivational' },
-  { text: 'Why passenger planes are strictly prohibited from flying over Antarctica', format: 'conspiracy_mystery', tone: 'dark_mystery' },
 ];
 
 export const ScriptGeneratorModal: React.FC<ScriptGeneratorModalProps> = ({
@@ -230,9 +231,23 @@ export const ScriptGeneratorModal: React.FC<ScriptGeneratorModalProps> = ({
             </label>
             <select
               value={format}
-              onChange={(e) => setFormat(e.target.value as VideoFormat)}
+              onChange={(e) => {
+                const nextFmt = e.target.value as VideoFormat;
+                setFormat(nextFmt);
+                if (nextFmt === 'real_human') {
+                  setTone('authentic_ugc');
+                  setCartoonStyle('real_human');
+                  setVoiceStyle('warm_storyteller');
+                } else if (nextFmt === 'fruit_drama') {
+                  setTone('dramatic_telenovela');
+                  setCartoonStyle('fruit_3d');
+                  setVoiceStyle('hype_beast');
+                }
+              }}
               className="bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500"
             >
+              <option value="real_human">👤 Real Human Creator / UGC Video (Photorealistic)</option>
+              <option value="fruit_drama">🍍 3D Fruit & Veggie Drama (HalaStory Soap Opera)</option>
               <option value="viral_facts">Viral Facts & Top Lists (High Retention)</option>
               <option value="cartoon_story">Animated Cartoon Story & Comedy</option>
               <option value="reddit_story">Reddit Confessions & Drama Storytime</option>
@@ -297,6 +312,8 @@ export const ScriptGeneratorModal: React.FC<ScriptGeneratorModalProps> = ({
               onChange={(e) => setCartoonStyle(e.target.value as CartoonStyle)}
               className="bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500"
             >
+              <option value="real_human">👤 Photorealistic Living Human (iPhone 16 Pro 4K)</option>
+              <option value="fruit_3d">🍍 3D Fruit Drama Soap Opera (HalaStory)</option>
               <option value="pixar_3d">Pixar & Disney 3D Animated Still</option>
               <option value="anime_manga">Modern Anime & Shonen Manga Style</option>
               <option value="comic_book">Vintage Comic Book & Pop Art</option>

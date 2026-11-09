@@ -65,6 +65,7 @@ export class CanvasRenderer {
   public async preloadAll(project: Project): Promise<void> {
     const urls: string[] = [];
     project.scenes.forEach((s) => {
+      if (s.keyframeImageUrl) urls.push(s.keyframeImageUrl);
       if (s.imageUrl) urls.push(s.imageUrl);
       if (s.fallbackSvg) urls.push(s.fallbackSvg);
     });
@@ -79,41 +80,78 @@ export class CanvasRenderer {
 
     ctx.save();
 
-    // 1. Calculate Camera Transform (Zoom, Pan, Shake, Flash)
+    // 1. Calculate Camera Transform & Video Motion (Kling 4.0 / Runway Gen-3 Engine)
     let scale = 1.0;
     let offsetX = 0;
     let offsetY = 0;
+    let rotation = 0;
 
-    switch (scene.cameraEffect) {
+    const motionType = scene.motionControl?.type || scene.cameraEffect || 'zoom_in';
+    const strengthFactor = (scene.motionControl?.strength ?? 6) / 5; // normalized around 1.0 - 2.0
+
+    switch (motionType) {
       case 'zoom_in':
-        scale = 1.0 + sceneProgress * 0.16;
+      case 'push_in': {
+        // Smooth easing push-in
+        const ease = sceneProgress * sceneProgress * (3 - 2 * sceneProgress);
+        scale = 1.0 + ease * 0.18 * strengthFactor;
+        offsetY = (sceneProgress - 0.5) * 12 * strengthFactor;
         break;
-      case 'zoom_out':
-        scale = 1.16 - sceneProgress * 0.16;
+      }
+      case 'zoom_out': {
+        const ease = sceneProgress * sceneProgress * (3 - 2 * sceneProgress);
+        scale = (1.0 + 0.18 * strengthFactor) - ease * 0.18 * strengthFactor;
         break;
+      }
       case 'pan_left':
-        offsetX = (sceneProgress - 0.5) * 50;
-        scale = 1.08;
+        offsetX = (sceneProgress - 0.5) * 55 * strengthFactor;
+        scale = 1.1;
         break;
       case 'pan_right':
-        offsetX = (0.5 - sceneProgress) * 50;
+        offsetX = (0.5 - sceneProgress) * 55 * strengthFactor;
+        scale = 1.1;
+        break;
+      case 'orbit': {
+        // Dynamic 3D orbital camera arc with subtle roll
+        rotation = Math.sin(sceneProgress * Math.PI) * 0.025 * strengthFactor;
+        offsetX = Math.sin(sceneProgress * Math.PI * 2) * 18 * strengthFactor;
+        offsetY = Math.cos(sceneProgress * Math.PI * 2) * 10 * strengthFactor;
+        scale = 1.12;
+        break;
+      }
+      case 'dolly_zoom': {
+        // Vertigo effect (optical push-in + FOV shift)
+        scale = 1.0 + Math.pow(sceneProgress, 1.4) * 0.26 * strengthFactor;
+        offsetY = -sceneProgress * 25 * strengthFactor;
+        break;
+      }
+      case 'drone_rise':
+        offsetY = (0.5 - sceneProgress) * 65 * strengthFactor;
         scale = 1.08;
         break;
-      case 'shake':
-        // High frequency shake for first 0.6 seconds or periodic
-        if (sceneProgress < 0.35) {
-          const intensity = (1 - sceneProgress / 0.35) * 16;
-          offsetX = (Math.sin(totalTime * 45) + Math.cos(totalTime * 30)) * intensity * 0.5;
-          offsetY = (Math.cos(totalTime * 50) + Math.sin(totalTime * 25)) * intensity * 0.5;
-        }
-        scale = 1.05;
+      case 'handheld':
+      case 'shake': {
+        // Organic handheld camera breathing & natural jitter
+        const jitter = scene.cameraEffect === 'shake' && sceneProgress < 0.35
+          ? (1 - sceneProgress / 0.35) * 16
+          : 4;
+        offsetX = (Math.sin(totalTime * 18) * 4 + Math.cos(totalTime * 32) * 2) * (strengthFactor * 0.7);
+        offsetY = (Math.cos(totalTime * 22) * 3 + Math.sin(totalTime * 15) * 2) * (strengthFactor * 0.7);
+        scale = 1.06;
         break;
+      }
       case 'flash_cut':
         scale = 1.0 + Math.sin(sceneProgress * Math.PI) * 0.08;
+        break;
+      default:
+        scale = 1.0 + sceneProgress * 0.14;
         break;
     }
 
     ctx.translate(W / 2, H / 2);
+    if (rotation !== 0) {
+      ctx.rotate(rotation);
+    }
     ctx.scale(scale, scale);
     ctx.translate(-W / 2 + offsetX, -H / 2 + offsetY);
 
@@ -122,9 +160,15 @@ export class CanvasRenderer {
 
     ctx.restore(); // Restore camera transform for stable UI overlays
 
-    // 3. Draw Cartoon Character (if cartoon format or avatar enabled)
-    if (project.format === 'cartoon_story' || project.characterAvatar) {
+    // 3. Draw Cartoon Character (if cartoon format or avatar enabled, and not in real human mode)
+    if (
+      (project.format === 'cartoon_story' || project.characterAvatar) &&
+      project.format !== 'real_human' &&
+      !project.realHumanMode
+    ) {
       this.drawCartoonCharacter(scene, sceneProgress, totalTime, project);
+    } else if (project.format === 'real_human' || project.realHumanMode) {
+      this.drawRealHumanCreatorHUD(project, totalTime);
     }
 
     // 4. Draw Viral Overlay Badge (Top Hook Badge)
@@ -212,8 +256,9 @@ export class CanvasRenderer {
 
     // 1. Draw Scene Image Artwork (AI photoreal image or instant SVG scene) with Kinetic Ken Burns Motion
     let img: HTMLImageElement | null = null;
-    if (scene.imageUrl) {
-      const candidate = this.getImage(scene.imageUrl);
+    const targetImgUrl = scene.keyframeImageUrl || scene.imageUrl;
+    if (targetImgUrl) {
+      const candidate = this.getImage(targetImgUrl);
       if (candidate && candidate.complete && candidate.naturalWidth > 0) {
         img = candidate;
       }
@@ -744,6 +789,76 @@ export class CanvasRenderer {
     ctx.restore();
   }
 
+  private drawRealHumanCreatorHUD(project: Project, totalTime: number) {
+    const ctx = this.ctx;
+    const W = CanvasRenderer.WIDTH;
+
+    ctx.save();
+    // 1. Subtle 4K REC indicator top-right
+    const isBlink = Math.floor(totalTime * 2) % 2 === 0;
+    const rx = W - 165;
+    const ry = 48;
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+    ctx.beginPath();
+    this.roundRect(rx - 8, ry - 14, 150, 28, 14);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    if (isBlink) {
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(rx + 6, ry, 5, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = 'rgba(239, 68, 68, 0.35)';
+      ctx.beginPath();
+      ctx.arc(rx + 6, ry, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.font = '800 12px "Outfit", "Plus Jakarta Sans", sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('4K REC • 60fps', rx + 18, ry);
+
+    // 2. Subtle Verified Creator Tag top-left
+    const creatorName = project.actorPersona || project.characterName || 'Verified Creator';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+    ctx.beginPath();
+    this.roundRect(24, 40, 230, 36, 18);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Small avatar / icon ring
+    ctx.fillStyle = '#06b6d4';
+    ctx.beginPath();
+    ctx.arc(42, 58, 11, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('👤', 42, 58);
+
+    ctx.font = '800 12px "Outfit", "Plus Jakarta Sans", sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'left';
+    ctx.fillText(creatorName.slice(0, 18), 58, 52);
+
+    ctx.font = '600 10px "Plus Jakarta Sans", sans-serif';
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillText('✓ Real Human Creator', 58, 66);
+
+    ctx.restore();
+  }
+
   private drawOverlayBadge(scene: Scene, progress: number) {
     const ctx = this.ctx;
     const W = CanvasRenderer.WIDTH;
@@ -887,6 +1002,12 @@ export class CanvasRenderer {
           ctx.fillStyle = '#e879f9';
           ctx.strokeStyle = '#3b82f6';
           ctx.lineWidth = 7;
+        } else if (preset === 'bold_white_glow') {
+          ctx.fillStyle = '#ffffff';
+          ctx.strokeStyle = '#000000';
+          ctx.lineWidth = 9;
+          ctx.shadowColor = 'rgba(255, 255, 255, 0.85)';
+          ctx.shadowBlur = 14;
         } else {
           ctx.fillStyle = '#38bdf8';
           ctx.strokeStyle = '#000000';

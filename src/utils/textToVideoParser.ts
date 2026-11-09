@@ -23,6 +23,19 @@ export function parseAnyPromptToVideo(
   let format: VideoFormat = options.format || 'viral_facts';
   if (!options.format) {
     if (
+      lower.includes('real human') ||
+      lower.includes('real person') ||
+      lower.includes('human video') ||
+      lower.includes('real actor') ||
+      lower.includes('actress') ||
+      lower.includes('ugc') ||
+      lower.includes('influencer') ||
+      lower.includes('talking head') ||
+      lower.includes('podcast host') ||
+      lower.includes('vlog')
+    ) {
+      format = 'real_human';
+    } else if (
       lower.includes('pineapple') ||
       lower.includes('grape') ||
       lower.includes('fruit') ||
@@ -44,8 +57,17 @@ export function parseAnyPromptToVideo(
   }
 
   const isFruitDrama = format === 'fruit_drama';
+  const isRealHuman = format === 'real_human';
   const isCartoon = format === 'cartoon_story' || isFruitDrama;
-  const tone: VideoTone = options.tone || (isFruitDrama ? 'dramatic_telenovela' : format === 'conspiracy_mystery' ? 'dark_mystery' : 'fast_viral');
+  const tone: VideoTone =
+    options.tone ||
+    (isFruitDrama
+      ? 'dramatic_telenovela'
+      : isRealHuman
+      ? 'authentic_ugc'
+      : format === 'conspiracy_mystery'
+      ? 'dark_mystery'
+      : 'fast_viral');
 
   // 1. Break text into sentences or meaningful chunks
   const sentences = cleanText
@@ -110,7 +132,9 @@ export function parseAnyPromptToVideo(
     const wordCount = text.split(/\s+/).length;
     const duration = Math.min(6.0, Math.max(3.2, Number((wordCount / 2.8).toFixed(1))));
     const emotion = idx === 0 ? 'shocked' : idx % 2 === 0 ? 'heroic' : 'confident';
-    const visualPrompt = `${text}, vertical 9:16 cinematic framing, vibrant lighting, highly detailed subject`;
+    const visualPrompt = isRealHuman
+      ? `authentic 4k vertical 9:16 video frame of real human creator talking into camera, natural skin texture, real expressions, ${text}`
+      : `${text}, vertical 9:16 cinematic framing, vibrant lighting, highly detailed subject`;
 
     return {
       id: `sc_${Date.now()}_${idx}`,
@@ -118,10 +142,23 @@ export function parseAnyPromptToVideo(
       durationSec: duration,
       narration: text,
       visualDescription: visualPrompt,
-      visualStyleKeywords: isCartoon
+      visualStyleKeywords: isRealHuman
+        ? 'Shot on iPhone 16 Pro 4k video 35mm lens, authentic living human creator, real skin texture, natural studio light'
+        : isCartoon
         ? 'Pixar 3D animated character, rich volumetric studio light'
         : 'Cinematic 9:16 vertical, dramatic lighting, photorealistic atmosphere',
-      imageUrl: getAIImageUrl(visualPrompt, isCartoon, idx),
+      imageUrl: getAIImageUrl(visualPrompt, isRealHuman ? 'real_human' : isCartoon, idx),
+      keyframeImageUrl: getAIImageUrl(visualPrompt, isRealHuman ? 'real_human' : isCartoon, idx),
+      expandedPrompt: visualPrompt,
+      imageGenModel: 'flux_1',
+      videoGenModel: 'kling_4',
+      motionControl: {
+        type: cameraEffects[idx % cameraEffects.length] as any,
+        strength: 6,
+        cameraPath: `Cinematic ${cameraEffects[idx % cameraEffects.length].replace('_', ' ')} with Kling 4.0 motion interpolation`,
+        fps: 60
+      },
+      pipelineStatus: 'ready',
       fallbackSvg: generateCinematicSceneVisual(text, {
         format,
         isCartoon,
@@ -142,28 +179,34 @@ export function parseAnyPromptToVideo(
   // 4. Derive catchy title & hashtags
   const firstSentence = finalSceneTexts[0] || 'Viral Video';
   const shortTitle = firstSentence.length > 45 ? `${firstSentence.slice(0, 42)}...` : firstSentence;
-  const hashtags = ['#fyp', '#viral', '#tiktok', '#storytime', '#trending', '#shorts'];
+  const hashtags = isRealHuman
+    ? ['#realhuman', '#ugc', '#creator', '#storytime', '#fyp', '#viral']
+    : ['#fyp', '#viral', '#tiktok', '#storytime', '#trending', '#shorts'];
 
   return {
     title: shortTitle,
     viralHook: firstSentence,
-    tiktokCaption: `Wait until the end... 🤯\n\nDrop your thoughts in the comments! 👇`,
+    tiktokCaption: isRealHuman
+      ? `Real talk... this changed everything. Drop your thoughts below! 👇📱`
+      : `Wait until the end... 🤯\n\nDrop your thoughts in the comments! 👇`,
     hashtags,
     format,
     tone,
-    cartoonStyle: isFruitDrama ? 'fruit_3d' : isCartoon ? 'pixar_3d' : undefined,
-    characterName: isFruitDrama ? 'Miss Pineapple' : isCartoon ? 'Sir Reginald' : undefined,
-    characterAvatar: isFruitDrama ? 'pineapple_bride' : isCartoon ? 'sir_reginald' : undefined,
-    // Fruit drama videos fill the full 9:16 frame with cinematic Pixar animation; split-screen for facts
-    splitScreenMode: !isCartoon,
+    cartoonStyle: isFruitDrama ? 'fruit_3d' : isCartoon ? 'pixar_3d' : isRealHuman ? 'real_human' : undefined,
+    characterName: isFruitDrama ? 'Miss Pineapple' : isCartoon ? 'Sir Reginald' : isRealHuman ? 'Sarah Jenkins' : undefined,
+    characterAvatar: isFruitDrama ? 'pineapple_bride' : isCartoon ? 'sir_reginald' : isRealHuman ? 'sarah_creator' : undefined,
+    realHumanMode: isRealHuman,
+    actorPersona: isRealHuman ? 'Sarah Jenkins (UGC Creator)' : undefined,
+    // Real human and fruit drama videos fill the full 9:16 frame; split-screen for facts
+    splitScreenMode: !isCartoon && !isRealHuman,
     splitScreenType: 'minecraft_parkour',
-    captionPreset: isCartoon ? 'cartoon_comic' : 'hormozi_yellow',
-    captionYPercent: !isCartoon ? 52 : 68,
+    captionPreset: isRealHuman ? 'bold_white_glow' : isCartoon ? 'cartoon_comic' : 'hormozi_yellow',
+    captionYPercent: isRealHuman ? 74 : (!isCartoon ? 52 : 68),
     captionFontSize: 34,
     autoEmojis: true,
-    bgmTrack: isFruitDrama ? 'soap_opera_drama' : isCartoon ? 'cartoon_quirky' : 'phonk_drift',
-    bgmVolume: 0.45,
-    voiceSpeaker: isFruitDrama ? 'Kore' : isCartoon ? 'Puck' : 'Fenrir',
+    bgmTrack: isFruitDrama ? 'soap_opera_drama' : isRealHuman ? 'lofi_chill' : isCartoon ? 'cartoon_quirky' : 'phonk_drift',
+    bgmVolume: 0.35,
+    voiceSpeaker: isFruitDrama ? 'Kore' : isRealHuman ? 'Kore' : isCartoon ? 'Puck' : 'Fenrir',
     scenes,
     autoCaptionsEnabled: true,
     subtitleBlocks

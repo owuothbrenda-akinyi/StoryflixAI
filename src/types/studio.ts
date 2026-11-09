@@ -1,4 +1,5 @@
 export type VideoFormat =
+  | 'real_human'
   | 'viral_facts'
   | 'cartoon_story'
   | 'fruit_drama'
@@ -10,6 +11,8 @@ export type VideoFormat =
   | 'tech_future';
 
 export type VideoTone =
+  | 'authentic_ugc'
+  | 'cinematic_documentary'
   | 'fast_viral'
   | 'dramatic_suspense'
   | 'funny_cartoon'
@@ -52,6 +55,7 @@ export type CharacterEmotion =
   | 'confident';
 
 export type CartoonStyle =
+  | 'real_human'
   | 'pixar_3d'
   | 'fruit_3d'
   | 'anime_manga'
@@ -66,7 +70,37 @@ export type CaptionPreset =
   | 'cartoon_comic'
   | 'minimal_glass'
   | 'danger_red'
-  | 'cyber_violet';
+  | 'cyber_violet'
+  | 'bold_white_glow';
+
+export type ImageGenModelType = 'flux_1' | 'midjourney_v6' | 'imagen_3';
+export type VideoGenModelType = 'kling_4' | 'runway_gen3' | 'luma_dream' | 'sora';
+export type MotionControlType =
+  | 'zoom_in'
+  | 'zoom_out'
+  | 'pan_left'
+  | 'pan_right'
+  | 'push_in'
+  | 'orbit'
+  | 'dolly_zoom'
+  | 'drone_rise'
+  | 'handheld';
+
+export interface PromptExpansionDetails {
+  cinematography: string;
+  lighting: string;
+  atmosphere: string;
+  colorGrading: string;
+  motionGuidance: string;
+}
+
+export interface MotionControlConfig {
+  type: MotionControlType;
+  strength: number; // 1 to 10
+  cameraPath: string;
+  motionPrompt?: string;
+  fps: number; // 30 | 60
+}
 
 export interface Scene {
   id: string;
@@ -86,6 +120,15 @@ export interface Scene {
   dialogueSpeaker?: string;
   audioUrl?: string; // Generated TTS audio
   words?: { word: string; start: number; end: number }[];
+  // 4-Stage Cinematic Video Pipeline fields
+  expandedPrompt?: string;
+  promptExpansionDetails?: PromptExpansionDetails;
+  imageGenModel?: ImageGenModelType;
+  keyframeImageUrl?: string;
+  videoGenModel?: VideoGenModelType;
+  motionControl?: MotionControlConfig;
+  motionVideoUrl?: string;
+  pipelineStatus?: 'idle' | 'expanding_prompt' | 'generating_frame' | 'synthesizing_motion' | 'ready';
 }
 
 export interface SubtitleBlock {
@@ -117,6 +160,8 @@ export interface Project {
   scenes: Scene[];
   characterName?: string;
   characterAvatar?: string;
+  realHumanMode?: boolean;
+  actorPersona?: string;
   autoCaptionsEnabled?: boolean;
   subtitleBlocks?: SubtitleBlock[];
   captionTimingOffsetSec?: number; // micro-timing adjustments
@@ -130,6 +175,8 @@ export interface CharacterPreset {
   tagline: string;
   style: CartoonStyle;
   avatarSvg: string;
+  isRealHuman?: boolean;
+  photoUrl?: string;
   colorScheme: {
     primary: string;
     secondary: string;
