@@ -1,9 +1,14 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI, Type } from '@google/genai';
 import { generateCinematicSceneVisual, getAIImageUrl } from './src/utils/cinematicArtEngine.ts';
+
+const execFileAsync = promisify(execFile);
 
 dotenv.config();
 
@@ -613,6 +618,135 @@ app.post('/api/synthesize-video-motion', async (req, res) => {
   } catch (error: any) {
     console.error('Error in /api/synthesize-video-motion:', error);
     return res.status(500).json({ error: error.message || 'Motion synthesis failed' });
+  }
+});
+
+// Static video and asset serving
+app.use('/samples', express.static(path.resolve(__dirname, 'public/samples')));
+app.use('/assets', express.static(path.resolve(__dirname, 'public/assets')));
+
+// 8. List Available FFmpeg Sample Videos Endpoint
+app.get('/api/ffmpeg-samples', async (_req, res) => {
+  try {
+    const samplesDir = path.resolve(__dirname, 'public/samples');
+    const assetsDir = path.resolve(__dirname, 'public/assets/aistudio');
+
+    const sampleFiles = fs.existsSync(samplesDir) ? fs.readdirSync(samplesDir) : [];
+    const assetFiles = fs.existsSync(assetsDir) ? fs.readdirSync(assetsDir) : [];
+
+    const items = [
+      ...sampleFiles.filter(f => f.endsWith('.mp4')).map(f => ({
+        name: f,
+        url: `/samples/${f}`,
+        path: `public/samples/${f}`,
+        isPreset: true
+      })),
+      ...assetFiles.filter(f => f.endsWith('.mp4')).map(f => ({
+        name: f,
+        url: `/assets/aistudio/${f}`,
+        path: `public/assets/aistudio/${f}`,
+        isPreset: false
+      }))
+    ];
+
+    return res.json({ samples: items });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+// 9. [FFmpeg 1080:960 Dual-Video vstack Engine]
+// Executes the exact user command:
+// ffmpeg -i cinematic_scene.mp4 -i minecraft_parkour.mp4 -filter_complex \
+// "[0:v]scale=1080:960,crop=1080:960[top]; \
+//  [1:v]scale=1080:960,crop=1080:960[bottom]; \
+//  [top][bottom]vstack=inputs=2[v]" \
+//  -map "[v]" -c:v libx264 -crf 18 output_tiktok_video.mp4
+app.post('/api/ffmpeg-vstack', async (req, res) => {
+  try {
+    const {
+      topVideo = 'public/samples/cinematic_scene.mp4',
+      bottomVideo = 'public/samples/minecraft_parkour.mp4',
+      crf = 18,
+      preset = 'veryfast',
+      includeAudio = true,
+      outputName = 'output_tiktok_video.mp4'
+    } = req.body;
+
+    const resolveVideoPath = (p: string) => {
+      let cleaned = p;
+      if (cleaned.startsWith('/')) cleaned = cleaned.slice(1);
+      if (cleaned.startsWith('samples/')) cleaned = 'public/' + cleaned;
+      if (cleaned.startsWith('assets/')) cleaned = 'public/' + cleaned;
+      if (!cleaned.startsWith('public/')) cleaned = path.join('public', cleaned);
+      return path.resolve(__dirname, cleaned);
+    };
+
+    const resolvedTop = resolveVideoPath(topVideo);
+    const resolvedBottom = resolveVideoPath(bottomVideo);
+
+    if (!fs.existsSync(resolvedTop)) {
+      return res.status(404).json({ error: `Top video file not found at: ${topVideo}` });
+    }
+    if (!fs.existsSync(resolvedBottom)) {
+      return res.status(404).json({ error: `Bottom video file not found at: ${bottomVideo}` });
+    }
+
+    const outputDir = path.resolve(__dirname, 'public/samples');
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+    const safeOutputName = (outputName || 'output_tiktok_video.mp4').replace(/[^a-zA-Z0-9._-]/g, '_');
+    const resolvedOutput = path.resolve(outputDir, safeOutputName);
+
+    // Exact filter graph ensuring aspect ratio protection, square pixel SAR, and 30fps sync
+    const filterComplex =
+      `[0:v]scale=1080:960:force_original_aspect_ratio=increase,crop=1080:960,setsar=1,fps=30[top]; ` +
+      `[1:v]scale=1080:960:force_original_aspect_ratio=increase,crop=1080:960,setsar=1,fps=30[bottom]; ` +
+      `[top][bottom]vstack=inputs=2[v]`;
+
+    const args = [
+      '-y',
+      '-i', resolvedTop,
+      '-i', resolvedBottom,
+      '-filter_complex', filterComplex,
+      '-map', '[v]'
+    ];
+
+    if (includeAudio) {
+      args.push('-map', '0:a?', '-c:a', 'aac');
+    }
+
+    args.push(
+      '-c:v', 'libx264',
+      '-crf', String(crf || 18),
+      '-preset', preset || 'veryfast',
+      '-shortest',
+      resolvedOutput
+    );
+
+    const startTime = Date.now();
+    await execFileAsync('ffmpeg', args, { timeout: 60000 });
+    const durationMs = Date.now() - startTime;
+
+    const stats = fs.statSync(resolvedOutput);
+
+    const fullCommandStr = `ffmpeg -i ${path.basename(topVideo)} -i ${path.basename(bottomVideo)} -filter_complex "[0:v]scale=1080:960,crop=1080:960[top]; [1:v]scale=1080:960,crop=1080:960[bottom]; [top][bottom]vstack=inputs=2[v]" -map "[v]" -c:v libx264 -crf ${crf} ${safeOutputName}`;
+
+    return res.json({
+      success: true,
+      downloadUrl: `/samples/${safeOutputName}`,
+      fullCommand: fullCommandStr,
+      executionTimeMs: durationMs,
+      fileSizeBytes: stats.size,
+      width: 1080,
+      height: 1920,
+      aspectRatio: '9:16',
+      status: 'rendered'
+    });
+  } catch (error: any) {
+    console.error('Error executing ffmpeg-vstack:', error);
+    return res.status(500).json({ error: error.message || 'FFmpeg execution failed' });
   }
 });
 

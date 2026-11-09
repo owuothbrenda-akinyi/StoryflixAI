@@ -1,5 +1,5 @@
 import React from 'react';
-import { Video, Sparkles, Download, Layers, Wand2, PlayCircle, Palette, Flame, UserCheck, Film } from 'lucide-react';
+import { Video, Sparkles, Download, Layers, Wand2, PlayCircle, Palette, Flame, UserCheck, Film, Terminal } from 'lucide-react';
 import { Project, VideoFormat } from '../types/studio';
 import { PRESET_PROJECTS } from '../data/presetTemplates';
 import { PWAInstallButton } from './PWAInstallButton';
@@ -12,6 +12,7 @@ interface HeaderProps {
   onOpenHookOptimizer: () => void;
   onChangeFormat: (format: VideoFormat) => void;
   onOpenPipelineModal?: () => void;
+  onOpenFFmpegModal?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -21,7 +22,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenExport,
   onOpenHookOptimizer,
   onChangeFormat,
-  onOpenPipelineModal
+  onOpenPipelineModal,
+  onOpenFFmpegModal
 }) => {
   return (
     <header className="min-h-[70px] py-2 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between sticky top-0 z-40">
@@ -143,6 +145,19 @@ export const Header: React.FC<HeaderProps> = ({
             <Film className="w-3.5 h-3.5 text-violet-400" />
             <span className="hidden md:inline">Kling & Flux Pipeline</span>
             <span className="md:hidden">Pipeline</span>
+          </button>
+        )}
+
+        {/* FFmpeg 1080:960 Dual-Stack Trigger */}
+        {onOpenFFmpegModal && (
+          <button
+            onClick={onOpenFFmpegModal}
+            className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-emerald-500/40 text-emerald-300 hover:text-white hover:bg-emerald-950/40 transition-colors cursor-pointer"
+            title="Open FFmpeg 1080:960 Dual-Stack Generator (Minecraft Parkour / Brainrot)"
+          >
+            <Terminal className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="hidden md:inline">FFmpeg Dual-Stack</span>
+            <span className="md:hidden">FFmpeg</span>
           </button>
         )}
 

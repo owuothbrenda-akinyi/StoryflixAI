@@ -13,7 +13,8 @@ import {
   Gauge,
   Film,
   Layers,
-  Sparkles
+  Sparkles,
+  Terminal
 } from 'lucide-react';
 import { Project, Scene } from '../types/studio';
 import { CanvasRenderer } from '../utils/canvasRenderer';
@@ -26,6 +27,7 @@ interface PhonePlayerProps {
   showTikTokOverlay: boolean;
   onToggleTikTokOverlay: () => void;
   onUpdateProject?: (updated: Partial<Project>) => void;
+  onOpenFFmpegModal?: () => void;
 }
 
 export const PhonePlayer: React.FC<PhonePlayerProps> = ({
@@ -34,7 +36,8 @@ export const PhonePlayer: React.FC<PhonePlayerProps> = ({
   onSelectScene,
   showTikTokOverlay,
   onToggleTikTokOverlay,
-  onUpdateProject
+  onUpdateProject,
+  onOpenFFmpegModal
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rendererRef = useRef<CanvasRenderer | null>(null);
@@ -500,8 +503,9 @@ export const PhonePlayer: React.FC<PhonePlayerProps> = ({
                   const nextSplit = !project.splitScreenMode;
                   onUpdateProject({
                     splitScreenMode: nextSplit,
+                    splitRatio: '50_50',
                     splitScreenType: project.splitScreenType || 'minecraft_parkour',
-                    captionYPercent: nextSplit ? 52 : 68
+                    captionYPercent: nextSplit ? 46 : 68
                   });
                 }
               }}
@@ -513,7 +517,7 @@ export const PhonePlayer: React.FC<PhonePlayerProps> = ({
               title="Toggle TikTok viral split-screen with satisfying gameplay"
             >
               <Layers className="w-3.5 h-3.5 text-amber-400" />
-              <span>Split-Screen B-Roll</span>
+              <span>Split 1080:960</span>
             </button>
 
             {project.splitScreenMode && onUpdateProject && (
@@ -524,11 +528,22 @@ export const PhonePlayer: React.FC<PhonePlayerProps> = ({
                 }}
                 className="bg-zinc-800 text-[10px] font-bold text-amber-200 border border-amber-500/30 rounded-lg px-2 py-1 outline-none cursor-pointer"
               >
-                <option value="minecraft_parkour">⛏️ Parkour</option>
+                <option value="minecraft_parkour">🧱 Parkour</option>
                 <option value="subway_surfer">🛹 Subway Surfer</option>
                 <option value="gta_ramp">🏎️ GTA Ramp</option>
-                <option value="satisfying_soap">🧼 Soap Cutting</option>
+                <option value="satisfying_sand">🧼 ASMR Sand</option>
               </select>
+            )}
+
+            {onOpenFFmpegModal && (
+              <button
+                onClick={onOpenFFmpegModal}
+                className="px-2 py-1 bg-zinc-800 text-[10px] font-bold text-emerald-300 border border-emerald-500/30 rounded-lg hover:bg-zinc-700 transition-colors flex items-center gap-1 cursor-pointer"
+                title="FFmpeg 1080:960 vstack configuration"
+              >
+                <Terminal className="w-3 h-3 text-emerald-400" />
+                <span>FFmpeg</span>
+              </button>
             )}
           </div>
 

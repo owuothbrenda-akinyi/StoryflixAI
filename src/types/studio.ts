@@ -166,7 +166,11 @@ export interface Project {
   subtitleBlocks?: SubtitleBlock[];
   captionTimingOffsetSec?: number; // micro-timing adjustments
   splitScreenMode?: boolean; // TikTok/Shorts Split-screen with viral B-Roll at bottom
-  splitScreenType?: 'minecraft_parkour' | 'neon_grid' | 'satisfying_sand';
+  splitScreenType?: 'minecraft_parkour' | 'subway_surfer' | 'gta_ramp' | 'satisfying_sand' | 'neon_grid' | 'custom_video';
+  splitBottomVideoUrl?: string; // Optional custom video or mp4 path (e.g. /samples/minecraft_parkour.mp4)
+  splitTopVideoUrl?: string; // Optional custom top video (e.g. /samples/cinematic_scene.mp4)
+  splitRatio?: '50_50' | '55_45' | '60_40'; // 50_50 = 1080x960 each (exact ffmpeg vstack)
+  splitDividerStyle?: 'neon_glow' | 'minimal_black' | 'laser_line' | 'none';
 }
 
 export interface CharacterPreset {

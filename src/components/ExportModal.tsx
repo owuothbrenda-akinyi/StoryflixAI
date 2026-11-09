@@ -9,7 +9,8 @@ import {
   Play,
   RotateCcw,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Terminal
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Project } from '../types/studio';
@@ -35,6 +36,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   });
 
   const [copiedCaption, setCopiedCaption] = useState(false);
+  const [copiedFFmpeg, setCopiedFFmpeg] = useState(false);
   const hiddenCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -110,6 +112,18 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     navigator.clipboard.writeText(fullCaption).then(() => {
       setCopiedCaption(true);
       setTimeout(() => setCopiedCaption(false), 2500);
+    });
+  };
+
+  const handleCopyFFmpegCommand = () => {
+    const cmd = `ffmpeg -i cinematic_scene.mp4 -i minecraft_parkour.mp4 -filter_complex \\
+"[0:v]scale=1080:960,crop=1080:960[top]; \\
+ [1:v]scale=1080:960,crop=1080:960[bottom]; \\
+ [top][bottom]vstack=inputs=2[v]" \\
+ -map "[v]" -c:v libx264 -crf 18 output_tiktok_video.mp4`;
+    navigator.clipboard.writeText(cmd).then(() => {
+      setCopiedFFmpeg(true);
+      setTimeout(() => setCopiedFFmpeg(false), 2500);
     });
   };
 
@@ -246,6 +260,39 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                   {project.hashtags.join(' ')}
                 </span>
               </p>
+            </div>
+
+            {/* FFmpeg 1080:960 Dual-Stack CLI Box */}
+            <div className="bg-zinc-950 border border-emerald-500/30 rounded-2xl p-4 flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                  <Terminal className="w-3.5 h-3.5" />
+                  FFmpeg 1080:960 Dual-Stack Command
+                </span>
+                <button
+                  onClick={handleCopyFFmpegCommand}
+                  className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 cursor-pointer"
+                >
+                  {copiedFFmpeg ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copy FFmpeg</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              <pre className="text-[11px] font-mono text-emerald-300/95 bg-zinc-900/90 p-3 rounded-xl border border-zinc-800/80 overflow-x-auto whitespace-pre-wrap select-all">
+{`ffmpeg -i cinematic_scene.mp4 -i minecraft_parkour.mp4 -filter_complex \\
+"[0:v]scale=1080:960,crop=1080:960[top]; \\
+ [1:v]scale=1080:960,crop=1080:960[bottom]; \\
+ [top][bottom]vstack=inputs=2[v]" \\
+ -map "[v]" -c:v libx264 -crf 18 output_tiktok_video.mp4`}
+              </pre>
             </div>
           </div>
         )}

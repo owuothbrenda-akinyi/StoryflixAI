@@ -29,6 +29,7 @@ import { ScriptGeneratorModal } from './components/ScriptGeneratorModal';
 import { HookOptimizerModal } from './components/HookOptimizerModal';
 import { ExportModal } from './components/ExportModal';
 import { CinematicPipelineModal } from './components/CinematicPipelineModal';
+import { FFmpegStackModal } from './components/FFmpegStackModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { parseAnyPromptToVideo } from './utils/textToVideoParser';
 import { generateCinematicSceneVisual, getAIImageUrl } from './utils/cinematicArtEngine';
@@ -44,6 +45,7 @@ export default function App() {
   const [isHookOptimizerOpen, setIsHookOptimizerOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isPipelineModalOpen, setIsPipelineModalOpen] = useState(false);
+  const [isFFmpegModalOpen, setIsFFmpegModalOpen] = useState(false);
 
   // Batch TTS generation state
   const [isGeneratingVoices, setIsGeneratingVoices] = useState(false);
@@ -275,6 +277,7 @@ export default function App() {
         onOpenHookOptimizer={() => setIsHookOptimizerOpen(true)}
         onChangeFormat={handleChangeFormat}
         onOpenPipelineModal={() => setIsPipelineModalOpen(true)}
+        onOpenFFmpegModal={() => setIsFFmpegModalOpen(true)}
       />
 
       {/* Main Studio Body: Player + Inspector */}
@@ -328,6 +331,7 @@ export default function App() {
             showTikTokOverlay={showTikTokOverlay}
             onToggleTikTokOverlay={() => setShowTikTokOverlay(!showTikTokOverlay)}
             onUpdateProject={updateProject}
+            onOpenFFmpegModal={() => setIsFFmpegModalOpen(true)}
           />
         </div>
 
@@ -451,6 +455,13 @@ export default function App() {
         onUpdateProject={updateProject}
         selectedSceneIndex={selectedSceneIndex}
         onSelectSceneIndex={setSelectedSceneIndex}
+      />
+
+      <FFmpegStackModal
+        isOpen={isFFmpegModalOpen}
+        onClose={() => setIsFFmpegModalOpen(false)}
+        project={project}
+        onUpdateProject={updateProject}
       />
 
       {/* Toast Notification */}

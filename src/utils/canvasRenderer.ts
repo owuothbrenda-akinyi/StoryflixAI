@@ -196,7 +196,11 @@ export class CanvasRenderer {
     const H = CanvasRenderer.HEIGHT;
 
     const isSplit = Boolean(project.splitScreenMode);
-    const splitY = isSplit ? Math.round(H * 0.54) : H;
+    // Exact FFmpeg vstack standard: 1080x960 top, 1080x960 bottom (50% = 960px on 1920p, or 640px on 1280p)
+    let splitRatioPercent = 0.50;
+    if (project.splitRatio === '55_45') splitRatioPercent = 0.55;
+    if (project.splitRatio === '60_40') splitRatioPercent = 0.60;
+    const splitY = isSplit ? Math.round(H * splitRatioPercent) : H;
     const topH = splitY;
 
     // Draw Main Scene (Image or Generative Procedural) in upper/full viewport
@@ -217,37 +221,59 @@ export class CanvasRenderer {
       ctx.beginPath();
       ctx.rect(0, splitY, W, bottomH);
       ctx.clip();
-      this.drawSplitScreenBRoll(splitY, bottomH, totalTime, project.splitScreenType || 'minecraft_parkour');
+      this.drawSplitScreenBRoll(splitY, bottomH, totalTime, project.splitScreenType || 'minecraft_parkour', project);
       ctx.restore();
 
-      // Sleek Split Divider
-      ctx.save();
-      const divGrad = ctx.createLinearGradient(0, splitY, W, splitY);
-      divGrad.addColorStop(0, '#f43f5e');
-      divGrad.addColorStop(0.5, '#fbbf24');
-      divGrad.addColorStop(1, '#8b5cf6');
-      ctx.fillStyle = divGrad;
-      ctx.fillRect(0, splitY - 3, W, 6);
+      const dividerStyle = project.splitDividerStyle || 'neon_glow';
+      if (dividerStyle !== 'none') {
+        ctx.save();
+        if (dividerStyle === 'minimal_black') {
+          // Clean 2px dark boundary like standard FFmpeg stitch
+          ctx.fillStyle = '#000000';
+          ctx.fillRect(0, splitY - 1, W, 2);
+        } else if (dividerStyle === 'laser_line') {
+          // Sharp cyberpunk laser line
+          ctx.shadowColor = '#00f2fe';
+          ctx.shadowBlur = 12;
+          ctx.fillStyle = '#00f2fe';
+          ctx.fillRect(0, splitY - 2, W, 4);
+        } else {
+          // Sleek Split Divider with badge
+          const divGrad = ctx.createLinearGradient(0, splitY, W, splitY);
+          divGrad.addColorStop(0, '#f43f5e');
+          divGrad.addColorStop(0.5, '#fbbf24');
+          divGrad.addColorStop(1, '#8b5cf6');
+          ctx.fillStyle = divGrad;
+          ctx.fillRect(0, splitY - 3, W, 6);
 
-      // Divider pill badge
-      const pillW = 280;
-      const pillH = 26;
-      const pillX = W / 2 - pillW / 2;
-      const pillY = splitY - pillH / 2;
-      ctx.fillStyle = '#09090b';
-      ctx.beginPath();
-      this.roundRect(pillX, pillY, pillW, pillH, 13);
-      ctx.fill();
-      ctx.strokeStyle = '#fbbf24';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+          // Divider pill badge
+          const pillW = 320;
+          const pillH = 26;
+          const pillX = W / 2 - pillW / 2;
+          const pillY = splitY - pillH / 2;
+          ctx.fillStyle = '#09090b';
+          ctx.beginPath();
+          this.roundRect(pillX, pillY, pillW, pillH, 13);
+          ctx.fill();
+          ctx.strokeStyle = '#fbbf24';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
 
-      ctx.font = '900 11px "Outfit", "Plus Jakarta Sans", sans-serif';
-      ctx.fillStyle = '#fef08a';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('⚡ AI MOVIE STORY • PARKOUR B-ROLL ⚡', W / 2, splitY);
-      ctx.restore();
+          ctx.font = '900 11px "Outfit", "Plus Jakarta Sans", sans-serif';
+          ctx.fillStyle = '#fef08a';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const label = project.splitScreenType === 'subway_surfer'
+            ? '⚡ 1080:960 VSTACK • SUBWAY SURFER ⚡'
+            : project.splitScreenType === 'gta_ramp'
+            ? '⚡ 1080:960 VSTACK • GTA MEGA RAMP ⚡'
+            : project.splitScreenType === 'satisfying_sand'
+            ? '⚡ 1080:960 VSTACK • ASMR SATISFYING ⚡'
+            : '⚡ 1080:960 VSTACK • MINECRAFT PARKOUR ⚡';
+          ctx.fillText(label, W / 2, splitY);
+        }
+        ctx.restore();
+      }
     }
   }
 
@@ -482,60 +508,169 @@ export class CanvasRenderer {
     }
   }
 
-  private drawSplitScreenBRoll(startY: number, height: number, totalTime: number, type: string) {
+  private drawSplitScreenBRoll(startY: number, height: number, totalTime: number, type: string, project: Project) {
     const ctx = this.ctx;
     const W = CanvasRenderer.WIDTH;
 
-    if (type === 'neon_grid') {
-      // 80s Synthwave Outrun Highway
+    if (type === 'subway_surfer') {
+      // 3D Subway Surfer Tracks with 3 lanes, coins, and speed lines
       const bgGrad = ctx.createLinearGradient(0, startY, 0, startY + height);
-      bgGrad.addColorStop(0, '#09090b');
-      bgGrad.addColorStop(0.4, '#2e1065');
-      bgGrad.addColorStop(1, '#4c0519');
+      bgGrad.addColorStop(0, '#0c1a2e');
+      bgGrad.addColorStop(0.5, '#1e293b');
+      bgGrad.addColorStop(1, '#0f172a');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, startY, W, height);
 
-      // Retro Neon Sun
-      const sunY = startY + 90;
-      const sunGrad = ctx.createLinearGradient(0, sunY - 60, 0, sunY + 60);
-      sunGrad.addColorStop(0, '#fde047');
-      sunGrad.addColorStop(1, '#f43f5e');
-      ctx.fillStyle = sunGrad;
-      ctx.beginPath();
-      ctx.arc(W / 2, sunY, 65, 0, Math.PI * 2);
-      ctx.fill();
+      const horizonY = startY + 60;
+      const trackH = height - 60;
+      const laneWidth = 140;
 
-      // Sun horizontal stripes
-      ctx.fillStyle = '#2e1065';
-      for (let s = 0; s < 5; s++) {
-        ctx.fillRect(W / 2 - 70, sunY + s * 12 + 6, 140, 4 + s);
-      }
-
-      // Perspective Grid Floor
-      const horizonY = startY + 110;
-      const floorH = height - 110;
-      ctx.strokeStyle = 'rgba(236, 72, 153, 0.45)';
-      ctx.lineWidth = 2;
-
-      // Vertical perspective vanishing rays
-      for (let vx = -W; vx <= W * 2; vx += 70) {
+      // 3 Train track perspective rails
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 3;
+      const rails = [-laneWidth * 1.5, -laneWidth * 0.5, laneWidth * 0.5, laneWidth * 1.5];
+      rails.forEach((rx) => {
         ctx.beginPath();
-        ctx.moveTo(W / 2, horizonY);
-        ctx.lineTo(vx, startY + height);
+        ctx.moveTo(W / 2 + rx * 0.15, horizonY);
+        ctx.lineTo(W / 2 + rx, startY + height);
         ctx.stroke();
-      }
+      });
 
-      // Horizontal speed lines moving downwards
-      const gridOffset = (totalTime * 140) % 50;
-      for (let gy = 0; gy < floorH; gy += 30) {
-        const yPos = horizonY + Math.pow((gy + gridOffset) / floorH, 1.8) * floorH;
+      // Wooden Railroad Sleepers moving towards camera
+      const sleeperOffset = (totalTime * 280) % 60;
+      for (let sy = 0; sy < trackH; sy += 35) {
+        const yPos = horizonY + Math.pow((sy + sleeperOffset) / trackH, 1.7) * trackH;
         if (yPos < startY + height) {
-          ctx.beginPath();
-          ctx.moveTo(0, yPos);
-          ctx.lineTo(W, yPos);
-          ctx.stroke();
+          const spread = ((yPos - horizonY) / trackH) * (laneWidth * 3);
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(W / 2 - spread / 2, yPos, spread, 6);
         }
       }
+
+      // Golden Subway Coins rotating and moving along track
+      for (let i = 0; i < 4; i++) {
+        const coinProgress = ((totalTime * 1.5 + i * 0.35) % 1);
+        const cy = horizonY + Math.pow(coinProgress, 1.6) * trackH;
+        const laneIdx = (i % 3) - 1; // -1, 0, 1
+        const cx = W / 2 + laneIdx * (laneWidth * ((cy - horizonY) / trackH));
+        const coinSize = 14 + coinProgress * 22;
+
+        if (cy < startY + height - 40) {
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.scale(Math.cos(totalTime * 8 + i), 1);
+          ctx.beginPath();
+          ctx.arc(0, 0, coinSize, 0, Math.PI * 2);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fill();
+          ctx.strokeStyle = '#d97706';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+          ctx.fillStyle = '#78350f';
+          ctx.font = `bold ${Math.round(coinSize)}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('¢', 0, 1);
+          ctx.restore();
+        }
+      }
+
+      // Dynamic Runner Character jumping
+      const runnerLane = Math.sin(totalTime * 2.5) > 0.3 ? 1 : Math.sin(totalTime * 2.5) < -0.3 ? -1 : 0;
+      const runnerX = W / 2 + runnerLane * 100;
+      const runnerJumpY = startY + height - 85 - Math.abs(Math.sin(totalTime * 7)) * 55;
+
+      ctx.save();
+      ctx.translate(runnerX, runnerJumpY);
+      // Hoodie character
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      this.roundRect(-20, -32, 40, 40, 10);
+      ctx.fill();
+      // Cap
+      ctx.fillStyle = '#3b82f6';
+      ctx.fillRect(-18, -42, 36, 12);
+      ctx.fillRect(-24, -36, 16, 6);
+      // Hoverboard
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      this.roundRect(-30, 12, 60, 10, 4);
+      ctx.fill();
+      ctx.restore();
+
+      // Subway Score HUD
+      ctx.font = '900 14px "Outfit", monospace';
+      ctx.fillStyle = '#fbbf24';
+      ctx.textAlign = 'right';
+      ctx.fillText(`SCORE: ${Math.floor(totalTime * 1420 + 8540)}`, W - 25, startY + 30);
+
+    } else if (type === 'gta_ramp') {
+      // High-Octane GTA Mega Ramp in Sunset Sky
+      const bgGrad = ctx.createLinearGradient(0, startY, 0, startY + height);
+      bgGrad.addColorStop(0, '#f97316');
+      bgGrad.addColorStop(0.4, '#a855f7');
+      bgGrad.addColorStop(1, '#09090b');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, startY, W, height);
+
+      // Mega Ramp Neon Track
+      const horizonY = startY + 50;
+      const rampW = 220;
+      ctx.fillStyle = '#18181b';
+      ctx.beginPath();
+      ctx.moveTo(W / 2 - 20, horizonY);
+      ctx.lineTo(W / 2 + 20, horizonY);
+      ctx.lineTo(W / 2 + rampW, startY + height);
+      ctx.lineTo(W / 2 - rampW, startY + height);
+      ctx.closePath();
+      ctx.fill();
+
+      // Neon Track Borders
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(W / 2 - 20, horizonY);
+      ctx.lineTo(W / 2 - rampW, startY + height);
+      ctx.moveTo(W / 2 + 20, horizonY);
+      ctx.lineTo(W / 2 + rampW, startY + height);
+      ctx.stroke();
+
+      // Neon speed booster arrows
+      const arrowOffset = (totalTime * 350) % 90;
+      for (let ay = 0; ay < height - 60; ay += 70) {
+        const yPos = horizonY + Math.pow((ay + arrowOffset) / (height - 60), 1.6) * (height - 60);
+        if (yPos < startY + height) {
+          ctx.fillStyle = '#f43f5e';
+          ctx.font = '900 24px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('▲ ▲ ▲', W / 2, yPos);
+        }
+      }
+
+      // Sports Car Leaping
+      const carY = startY + height - 90 - Math.abs(Math.sin(totalTime * 5)) * 60;
+      ctx.save();
+      ctx.translate(W / 2, carY);
+      ctx.rotate((Math.sin(totalTime * 5) * 0.15));
+      ctx.fillStyle = '#fbbf24';
+      this.roundRect(-45, -18, 90, 36, 8);
+      ctx.fill();
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(-25, -12, 50, 24);
+      // Nitro flames
+      ctx.fillStyle = '#00f2fe';
+      ctx.beginPath();
+      ctx.moveTo(-45, -6);
+      ctx.lineTo(-75 - Math.random() * 20, 0);
+      ctx.lineTo(-45, 6);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.font = '900 13px "Outfit", monospace';
+      ctx.fillStyle = '#06b6d4';
+      ctx.textAlign = 'left';
+      ctx.fillText('SPEED: 248 MPH', 25, startY + 30);
+
     } else if (type === 'satisfying_sand') {
       // Satisfying kinetic rainbow sand spirals
       ctx.fillStyle = '#09090b';
@@ -549,106 +684,230 @@ export class CanvasRenderer {
         ctx.lineWidth = 6;
         ctx.stroke();
       }
-    } else {
-      // Default: Minecraft-style Isometric Parkour Runner
+
+      // ASMR Slicing blade animation
+      const bladeX = cx + Math.sin(totalTime * 4) * 160;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(bladeX, cy - 120);
+      ctx.lineTo(bladeX, cy + 120);
+      ctx.stroke();
+
+    } else if (type === 'neon_grid') {
+      // 80s Synthwave Outrun Highway
       const bgGrad = ctx.createLinearGradient(0, startY, 0, startY + height);
-      bgGrad.addColorStop(0, '#1c1917');
-      bgGrad.addColorStop(0.65, '#451a03');
+      bgGrad.addColorStop(0, '#09090b');
+      bgGrad.addColorStop(0.4, '#2e1065');
+      bgGrad.addColorStop(1, '#4c0519');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, startY, W, height);
+
+      const sunY = startY + 90;
+      const sunGrad = ctx.createLinearGradient(0, sunY - 60, 0, sunY + 60);
+      sunGrad.addColorStop(0, '#fde047');
+      sunGrad.addColorStop(1, '#f43f5e');
+      ctx.fillStyle = sunGrad;
+      ctx.beginPath();
+      ctx.arc(W / 2, sunY, 65, 0, Math.PI * 2);
+      ctx.fill();
+
+      for (let s = 0; s < 5; s++) {
+        ctx.fillStyle = '#2e1065';
+        ctx.fillRect(W / 2 - 70, sunY + s * 12 + 6, 140, 4 + s);
+      }
+
+      const horizonY = startY + 110;
+      const floorH = height - 110;
+      ctx.strokeStyle = 'rgba(236, 72, 153, 0.45)';
+      ctx.lineWidth = 2;
+
+      for (let vx = -W; vx <= W * 2; vx += 70) {
+        ctx.beginPath();
+        ctx.moveTo(W / 2, horizonY);
+        ctx.lineTo(vx, startY + height);
+        ctx.stroke();
+      }
+
+      const gridOffset = (totalTime * 140) % 50;
+      for (let gy = 0; gy < floorH; gy += 30) {
+        const yPos = horizonY + Math.pow((gy + gridOffset) / floorH, 1.8) * floorH;
+        if (yPos < startY + height) {
+          ctx.beginPath();
+          ctx.moveTo(0, yPos);
+          ctx.lineTo(W, yPos);
+          ctx.stroke();
+        }
+      }
+    } else {
+      // Default: Ultra-Realistic Minecraft Parkour 3D with Full HUD & First-Person Crosshair
+      const bgGrad = ctx.createLinearGradient(0, startY, 0, startY + height);
+      bgGrad.addColorStop(0, '#0f172a');
+      bgGrad.addColorStop(0.6, '#451a03');
       bgGrad.addColorStop(1, '#9a3412');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, startY, W, height);
 
       // Bubbling lava lake at the bottom
-      const lavaY = startY + height - 70;
+      const lavaY = startY + height - 85;
       ctx.fillStyle = '#ea580c';
-      ctx.fillRect(0, lavaY, W, 70);
-      for (let i = 0; i < 12; i++) {
-        const lx = ((i * 65 + totalTime * 40) % (W + 60)) - 30;
-        const ly = lavaY + 20 + Math.sin(totalTime * 3 + i) * 15;
-        const lr = 8 + (i % 4) * 4;
+      ctx.fillRect(0, lavaY, W, 85);
+      for (let i = 0; i < 14; i++) {
+        const lx = ((i * 55 + totalTime * 35) % (W + 60)) - 30;
+        const ly = lavaY + 25 + Math.sin(totalTime * 3 + i) * 16;
+        const lr = 7 + (i % 4) * 4;
         ctx.beginPath();
         ctx.arc(lx, ly, lr, 0, Math.PI * 2);
         ctx.fillStyle = '#fde047';
         ctx.fill();
       }
 
-      // Floating 3D Isometric Minecraft Parkour Blocks scrolling down
-      const blockSpeed = 160;
+      // Floating 3D Isometric Minecraft Parkour Blocks
+      const blockSpeed = 175;
       const numBlocks = 6;
       for (let i = 0; i < numBlocks; i++) {
-        const offset = (totalTime * blockSpeed + i * 140) % (height + 160);
-        const by = startY - 60 + offset;
-        const bx = W / 2 + Math.sin(i * 2.2 + totalTime * 0.8) * 160;
-        const bw = 100;
-        const bh = 50;
+        const offset = (totalTime * blockSpeed + i * 145) % (height + 170);
+        const by = startY - 70 + offset;
+        const bx = W / 2 + Math.sin(i * 2.3 + totalTime * 0.85) * 170;
+        const bw = 110;
+        const bh = 55;
 
         // Block Shadow on lava
-        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
         ctx.beginPath();
-        ctx.ellipse(bx, lavaY - 10, bw * 0.5, 14, 0, 0, Math.PI * 2);
+        ctx.ellipse(bx, lavaY - 12, bw * 0.52, 16, 0, 0, Math.PI * 2);
         ctx.fill();
 
         // 3D Isometric Grass Block Top
-        ctx.fillStyle = '#22c55e';
+        ctx.fillStyle = i % 2 === 0 ? '#22c55e' : '#64748b'; // alternate grass and stone
         ctx.beginPath();
         ctx.moveTo(bx, by);
-        ctx.lineTo(bx + bw / 2, by + 20);
-        ctx.lineTo(bx, by + 40);
-        ctx.lineTo(bx - bw / 2, by + 20);
+        ctx.lineTo(bx + bw / 2, by + 22);
+        ctx.lineTo(bx, by + 44);
+        ctx.lineTo(bx - bw / 2, by + 22);
         ctx.closePath();
         ctx.fill();
 
-        // Dirt Left Face
-        ctx.fillStyle = '#78350f';
+        // Left Face
+        ctx.fillStyle = i % 2 === 0 ? '#78350f' : '#475569';
         ctx.beginPath();
-        ctx.moveTo(bx - bw / 2, by + 20);
-        ctx.lineTo(bx, by + 40);
-        ctx.lineTo(bx, by + 40 + bh);
-        ctx.lineTo(bx - bw / 2, by + 20 + bh);
+        ctx.moveTo(bx - bw / 2, by + 22);
+        ctx.lineTo(bx, by + 44);
+        ctx.lineTo(bx, by + 44 + bh);
+        ctx.lineTo(bx - bw / 2, by + 22 + bh);
         ctx.closePath();
         ctx.fill();
 
-        // Dirt Right Face (shaded)
-        ctx.fillStyle = '#451a03';
+        // Right Face (shaded)
+        ctx.fillStyle = i % 2 === 0 ? '#451a03' : '#334155';
         ctx.beginPath();
-        ctx.moveTo(bx, by + 40);
-        ctx.lineTo(bx + bw / 2, by + 20);
-        ctx.lineTo(bx + bw / 2, by + 20 + bh);
-        ctx.lineTo(bx, by + 40 + bh);
+        ctx.moveTo(bx, by + 44);
+        ctx.lineTo(bx + bw / 2, by + 22);
+        ctx.lineTo(bx + bw / 2, by + 22 + bh);
+        ctx.lineTo(bx, by + 44 + bh);
         ctx.closePath();
         ctx.fill();
 
         // Pixel Grass Dripping overhang
-        ctx.fillStyle = '#16a34a';
-        ctx.fillRect(bx - 20, by + 32, 10, 12);
-        ctx.fillRect(bx + 8, by + 28, 12, 14);
+        if (i % 2 === 0) {
+          ctx.fillStyle = '#16a34a';
+          ctx.fillRect(bx - 25, by + 34, 12, 14);
+          ctx.fillRect(bx + 10, by + 30, 14, 16);
+        }
 
-        // Floating Gold Coin / XP Orb on top of block
+        // Floating Gold / Diamond XP Orb on top of block
         const coinBob = Math.sin(totalTime * 6 + i) * 8;
         ctx.save();
-        ctx.translate(bx, by + 10 + coinBob);
+        ctx.translate(bx, by + 12 + coinBob);
         ctx.beginPath();
         ctx.arc(0, 0, 10, 0, Math.PI * 2);
-        ctx.fillStyle = '#facc15';
+        ctx.fillStyle = i % 3 === 0 ? '#38bdf8' : '#facc15';
         ctx.fill();
-        ctx.strokeStyle = '#ca8a04';
+        ctx.strokeStyle = i % 3 === 0 ? '#0284c7' : '#ca8a04';
         ctx.lineWidth = 2;
         ctx.stroke();
         ctx.restore();
       }
 
-      // Parkour Player Jumping Cursor
-      const jumpY = startY + height * 0.45 + Math.abs(Math.sin(totalTime * 8)) * -40;
+      // First-person Crosshair '+' in center of parkour viewport
+      const crosshairY = startY + height * 0.45;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(W / 2 - 12, crosshairY);
+      ctx.lineTo(W / 2 + 12, crosshairY);
+      ctx.moveTo(W / 2, crosshairY - 12);
+      ctx.lineTo(W / 2, crosshairY + 12);
+      ctx.stroke();
+
+      // Minecraft Player Jumping Cursor / Character
+      const jumpY = startY + height * 0.45 + Math.abs(Math.sin(totalTime * 8)) * -45;
       ctx.save();
       ctx.translate(W / 2, jumpY);
-      ctx.fillStyle = '#38bdf8';
+      ctx.fillStyle = '#0ea5e9';
       ctx.beginPath();
-      this.roundRect(-16, -20, 32, 28, 6);
+      this.roundRect(-16, -22, 32, 30, 6);
       ctx.fill();
       ctx.fillStyle = '#0284c7';
-      ctx.fillRect(-12, 8, 8, 16);
-      ctx.fillRect(4, 8, 8, 16);
+      ctx.fillRect(-12, 8, 8, 18);
+      ctx.fillRect(4, 8, 8, 18);
       ctx.restore();
+
+      // Minecraft UI HUD: Hearts & Hunger Bar
+      const hudY = startY + height - 58;
+      // 10 Red Hearts
+      for (let h = 0; h < 10; h++) {
+        ctx.fillStyle = '#ef4444';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('❤️', W / 2 - 165 + h * 16, hudY);
+      }
+      // 10 Hunger drumsticks
+      for (let f = 0; f < 10; f++) {
+        ctx.fillStyle = '#f97316';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('🍗', W / 2 + 20 + f * 15, hudY);
+      }
+
+      // Minecraft XP Green Bar
+      const xpBarW = 340;
+      const xpBarH = 6;
+      const xpBarX = W / 2 - xpBarW / 2;
+      const xpBarY = hudY + 16;
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(xpBarX, xpBarY, xpBarW, xpBarH);
+      ctx.fillStyle = '#22c55e';
+      const xpFill = ((totalTime * 0.35) % 1) * xpBarW;
+      ctx.fillRect(xpBarX, xpBarY, xpFill, xpBarH);
+
+      // Level number in green pixel font
+      ctx.font = '900 13px monospace';
+      ctx.fillStyle = '#86efac';
+      ctx.textAlign = 'center';
+      ctx.fillText('99', W / 2, xpBarY - 2);
+
+      // Minecraft Hotbar (9 inventory slots)
+      const slotSize = 28;
+      const hotbarW = slotSize * 9 + 8;
+      const hotbarX = W / 2 - hotbarW / 2;
+      const hotbarY = xpBarY + 10;
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.fillRect(hotbarX, hotbarY, hotbarW, slotSize + 4);
+      for (let s = 0; s < 9; s++) {
+        const sx = hotbarX + 4 + s * slotSize;
+        ctx.strokeStyle = s === 2 ? '#ffffff' : '#52525b';
+        ctx.lineWidth = s === 2 ? 2 : 1;
+        ctx.strokeRect(sx, hotbarY + 2, slotSize - 2, slotSize);
+      }
+      // Icons in hotbar slots
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🗡️', hotbarX + 4 + 0 * slotSize + 13, hotbarY + 22);
+      ctx.fillText('⛏️', hotbarX + 4 + 1 * slotSize + 13, hotbarY + 22);
+      ctx.fillText('🪓', hotbarX + 4 + 2 * slotSize + 13, hotbarY + 22);
+      ctx.fillText('🧱', hotbarX + 4 + 3 * slotSize + 13, hotbarY + 22);
+      ctx.fillText('🍎', hotbarX + 4 + 4 * slotSize + 13, hotbarY + 22);
+      ctx.fillText('🏹', hotbarX + 4 + 5 * slotSize + 13, hotbarY + 22);
+      ctx.fillText('🥩', hotbarX + 4 + 6 * slotSize + 13, hotbarY + 22);
     }
   }
 
@@ -930,7 +1189,8 @@ export class CanvasRenderer {
 
     const preset = project.captionPreset || 'hormozi_yellow';
     const isSplit = Boolean(project.splitScreenMode);
-    const defaultYPercent = isSplit ? 60 : 68;
+    // In split-screen (top 50%), keep captions in top story frame right above the divider
+    const defaultYPercent = isSplit ? 46 : 68;
     const yPercent = (project.captionYPercent || defaultYPercent) / 100;
     const baseFontSize = project.captionFontSize || 34;
 
