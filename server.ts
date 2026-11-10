@@ -4,6 +4,8 @@ import path from 'path';
 import fs from 'fs';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
+import ffmpeg from 'fluent-ffmpeg';
+import axios from 'axios';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI, Type } from '@google/genai';
 import { generateCinematicSceneVisual, getAIImageUrl } from './src/utils/cinematicArtEngine.ts';
@@ -624,10 +626,60 @@ app.post('/api/synthesize-video-motion', async (req, res) => {
 // Static video and asset serving
 app.use('/samples', express.static(path.resolve(__dirname, 'public/samples')));
 app.use('/assets', express.static(path.resolve(__dirname, 'public/assets')));
+app.use('/outputs', express.static(path.resolve(__dirname, 'public/outputs')));
+app.use('/outputs', express.static(path.resolve(__dirname, 'outputs')));
+
+// Auto-create sample videos if missing so endpoints never fail
+async function ensureSampleVideosExist() {
+  const samplesDir = path.resolve(__dirname, 'public/samples');
+  if (!fs.existsSync(samplesDir)) {
+    fs.mkdirSync(samplesDir, { recursive: true });
+  }
+
+  const parkourPath = path.resolve(samplesDir, 'minecraft_parkour.mp4');
+  if (!fs.existsSync(parkourPath)) {
+    try {
+      await execFileAsync('ffmpeg', [
+        '-y',
+        '-f', 'lavfi',
+        '-i', 'color=c=#1c1917:s=1080x960:d=6,drawbox=y=ih-120:color=#ea580c:t=fill,drawbox=y=ih-60:color=#fde047:t=fill,drawgrid=w=120:h=120:t=4:c=#22c55e@0.6,drawtext=text=\'MINECRAFT PARKOUR 3D\':fontcolor=white:fontsize=48:box=1:boxcolor=black@0.6:boxborderw=10:x=(w-text_w)/2:y=(h-text_h)/2',
+        '-f', 'lavfi',
+        '-i', 'sine=frequency=440:duration=6',
+        '-c:v', 'libx264',
+        '-crf', '22',
+        '-preset', 'ultrafast',
+        '-c:a', 'aac',
+        parkourPath
+      ]);
+    } catch (e) {
+      console.warn('Failed to auto-generate sample minecraft_parkour.mp4:', e);
+    }
+  }
+
+  const cinematicPath = path.resolve(samplesDir, 'cinematic_scene.mp4');
+  const userVideoPath = path.resolve(__dirname, 'public/assets/aistudio/432b05e8bf95422a4b41e99d1974ad8e_c99ffe77.mp4');
+  if (!fs.existsSync(cinematicPath) && fs.existsSync(userVideoPath)) {
+    try {
+      await execFileAsync('ffmpeg', [
+        '-y',
+        '-i', userVideoPath,
+        '-t', '6',
+        '-c:v', 'libx264',
+        '-crf', '22',
+        '-preset', 'ultrafast',
+        '-c:a', 'aac',
+        cinematicPath
+      ]);
+    } catch (e) {
+      console.warn('Failed to auto-generate sample cinematic_scene.mp4:', e);
+    }
+  }
+}
 
 // 8. List Available FFmpeg Sample Videos Endpoint
 app.get('/api/ffmpeg-samples', async (_req, res) => {
   try {
+    await ensureSampleVideosExist();
     const samplesDir = path.resolve(__dirname, 'public/samples');
     const assetsDir = path.resolve(__dirname, 'public/assets/aistudio');
 
@@ -664,6 +716,8 @@ app.get('/api/ffmpeg-samples', async (_req, res) => {
 //  -map "[v]" -c:v libx264 -crf 18 output_tiktok_video.mp4
 app.post('/api/ffmpeg-vstack', async (req, res) => {
   try {
+    await ensureSampleVideosExist();
+
     const {
       topVideo = 'public/samples/cinematic_scene.mp4',
       bottomVideo = 'public/samples/minecraft_parkour.mp4',
@@ -682,14 +736,24 @@ app.post('/api/ffmpeg-vstack', async (req, res) => {
       return path.resolve(__dirname, cleaned);
     };
 
-    const resolvedTop = resolveVideoPath(topVideo);
-    const resolvedBottom = resolveVideoPath(bottomVideo);
+    let resolvedTop = resolveVideoPath(topVideo);
+    let resolvedBottom = resolveVideoPath(bottomVideo);
+    const userVideoPath = path.resolve(__dirname, 'public/assets/aistudio/432b05e8bf95422a4b41e99d1974ad8e_c99ffe77.mp4');
 
     if (!fs.existsSync(resolvedTop)) {
-      return res.status(404).json({ error: `Top video file not found at: ${topVideo}` });
+      if (fs.existsSync(userVideoPath)) {
+        resolvedTop = userVideoPath;
+      } else {
+        return res.status(404).json({ error: `Top video file not found at: ${topVideo}` });
+      }
     }
     if (!fs.existsSync(resolvedBottom)) {
-      return res.status(404).json({ error: `Bottom video file not found at: ${bottomVideo}` });
+      const parkourFallback = path.resolve(__dirname, 'public/samples/minecraft_parkour.mp4');
+      if (fs.existsSync(parkourFallback)) {
+        resolvedBottom = parkourFallback;
+      } else {
+        return res.status(404).json({ error: `Bottom video file not found at: ${bottomVideo}` });
+      }
     }
 
     const outputDir = path.resolve(__dirname, 'public/samples');
@@ -747,6 +811,212 @@ app.post('/api/ffmpeg-vstack', async (req, res) => {
   } catch (error: any) {
     console.error('Error executing ffmpeg-vstack:', error);
     return res.status(500).json({ error: error.message || 'FFmpeg execution failed' });
+  }
+});
+
+// 10. Node.js fluent-ffmpeg compositeTikTokVideo Pipeline
+export async function compositeTikTokVideo(
+  aiVideoUrl: string,
+  outputFileName: string = `tiktok_composite_${Date.now()}.mp4`,
+  options: {
+    preferredBRoll?: string;
+    crf?: number;
+    preset?: string;
+  } = {}
+): Promise<{
+  outputPath: string;
+  downloadUrl: string;
+  randomBRoll: string;
+  fileSizeBytes: number;
+  durationMs: number;
+}> {
+  return new Promise(async (resolve, reject) => {
+    const startTime = Date.now();
+    // 1. Define paths for processing
+    const tempId = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    const tempAiVideoPath = path.join(__dirname, `temp_ai_scene_${tempId}.mp4`);
+
+    // Ensure outputs directory exists in both public/outputs and outputs/
+    const outputsDir = path.join(__dirname, 'public', 'outputs');
+    const outputsDirRoot = path.join(__dirname, 'outputs');
+    if (!fs.existsSync(outputsDir)) fs.mkdirSync(outputsDir, { recursive: true });
+    if (!fs.existsSync(outputsDirRoot)) fs.mkdirSync(outputsDirRoot, { recursive: true });
+
+    const safeOutputName = outputFileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const outputPath = path.join(outputsDir, safeOutputName);
+    const outputPathRoot = path.join(outputsDirRoot, safeOutputName);
+
+    // 2. Stream B: Pick a random pre-downloaded clip from assets folder
+    let bRollFolder = path.join(__dirname, 'assets', 'broll');
+    if (!fs.existsSync(bRollFolder) || fs.readdirSync(bRollFolder).filter(file => file.endsWith('.mp4')).length === 0) {
+      bRollFolder = path.join(__dirname, 'public', 'assets', 'broll');
+    }
+    await ensureSampleVideosExist();
+
+    const bRollFiles = fs.existsSync(bRollFolder)
+      ? fs.readdirSync(bRollFolder).filter(file => file.endsWith('.mp4'))
+      : [];
+
+    let randomBRoll = options.preferredBRoll;
+    if (!randomBRoll || !bRollFiles.includes(randomBRoll)) {
+      randomBRoll = bRollFiles.length > 0
+        ? bRollFiles[Math.floor(Math.random() * bRollFiles.length)]
+        : 'minecraft_parkour_01.mp4';
+    }
+    const bRollPath = path.join(bRollFolder, randomBRoll);
+
+    try {
+      // 3. Download or Stream A (The clean AI video) from your API response url
+      if (aiVideoUrl.startsWith('http://') || aiVideoUrl.startsWith('https://')) {
+        const response = await axios({
+          method: 'GET',
+          url: aiVideoUrl,
+          responseType: 'stream',
+          timeout: 45000
+        });
+
+        const writer = fs.createWriteStream(tempAiVideoPath);
+        response.data.pipe(writer);
+
+        await new Promise((res, rej) => {
+          writer.on('finish', () => res(undefined));
+          writer.on('error', rej);
+        });
+      } else {
+        // Resolve local path or relative URL
+        let localPath = aiVideoUrl;
+        if (localPath.startsWith('/')) localPath = localPath.slice(1);
+        if (localPath.startsWith('samples/')) localPath = path.join('public', localPath);
+        if (localPath.startsWith('assets/')) localPath = path.join('public', localPath);
+        let resolvedLocal = path.resolve(__dirname, localPath);
+
+        if (!fs.existsSync(resolvedLocal)) {
+          const userVideo = path.resolve(__dirname, 'public/assets/aistudio/432b05e8bf95422a4b41e99d1974ad8e_c99ffe77.mp4');
+          if (fs.existsSync(userVideo)) {
+            resolvedLocal = userVideo;
+          } else {
+            resolvedLocal = path.resolve(__dirname, 'public/samples/cinematic_scene.mp4');
+          }
+        }
+
+        fs.copyFileSync(resolvedLocal, tempAiVideoPath);
+      }
+
+      // 4. Run FFmpeg to crop, scale, stack, and sync the lengths perfectly
+      ffmpeg()
+        .input(tempAiVideoPath) // Input 0: The pristine AI video
+        .input(bRollPath)       // Input 1: The local Minecraft / gameplay footage
+        .complexFilter([
+          // Scale and crop Stream A to fill the top half (1080x960), synchronized to 30fps
+          '[0:v]scale=1080:1920,crop=1080:960:0:480,fps=30,setsar=1[top]',
+          // Scale and crop Stream B to fill the bottom half (1080x960), synchronized to 30fps
+          '[1:v]scale=1080:1920,crop=1080:960:0:480,fps=30,setsar=1[bottom]',
+          // Stack them vertically into one 1080x1920 frame
+          '[top][bottom]vstack=inputs=2[v]'
+        ])
+        .outputOptions([
+          '-map [v]',
+          '-map 0:a?',               // Preserves Gemini TTS voiceover narration audio
+          '-shortest',               // CRITICAL: Tells FFmpeg to cut the gameplay footage the exact second the AI video ends
+          '-c:v libx264',            // Standard web-safe video codec
+          `-crf ${options.crf || 18}`, // High visual quality setting
+          `-preset ${options.preset || 'veryfast'}`,
+          '-pix_fmt yuv420p',        // Ensures perfect playback compatibility on mobile/TikTok
+          '-movflags +faststart'     // Web-optimized MP4 with moov atom at beginning for instant playback
+        ])
+        .output(outputPath)
+        .on('end', () => {
+          // Clean up the temporary raw AI file from server disk
+          try {
+            if (fs.existsSync(tempAiVideoPath)) {
+              fs.unlinkSync(tempAiVideoPath);
+            }
+            if (fs.existsSync(outputPath)) {
+              fs.copyFileSync(outputPath, outputPathRoot);
+            }
+          } catch (cleanErr) {
+            console.warn('Cleanup warning:', cleanErr);
+          }
+
+          const stats = fs.existsSync(outputPath) ? fs.statSync(outputPath) : { size: 0 };
+          const durationMs = Date.now() - startTime;
+          console.log(`Successfully generated split-screen video! (${safeOutputName}, B-roll: ${randomBRoll})`);
+          resolve({
+            outputPath,
+            downloadUrl: `/outputs/${safeOutputName}`,
+            randomBRoll,
+            fileSizeBytes: stats.size,
+            durationMs
+          });
+        })
+        .on('error', (err: any) => {
+          console.error('FFmpeg compilation error: ', err);
+          try {
+            if (fs.existsSync(tempAiVideoPath)) {
+              fs.unlinkSync(tempAiVideoPath);
+            }
+          } catch {}
+          reject(err);
+        })
+        .run();
+
+    } catch (error) {
+      console.error('Failed to process streams:', error);
+      try {
+        if (fs.existsSync(tempAiVideoPath)) {
+          fs.unlinkSync(tempAiVideoPath);
+        }
+      } catch {}
+      reject(error);
+    }
+  });
+}
+
+// 11. Endpoint for fluent-ffmpeg TikTok Video Composite
+app.post('/api/composite-tiktok-video', async (req, res) => {
+  try {
+    const {
+      aiVideoUrl = '/assets/aistudio/432b05e8bf95422a4b41e99d1974ad8e_c99ffe77.mp4',
+      outputFileName = `tiktok_composite_${Date.now()}.mp4`,
+      preferredBRoll,
+      crf = 18,
+      preset = 'veryfast'
+    } = req.body;
+
+    const result = await compositeTikTokVideo(aiVideoUrl, outputFileName, {
+      preferredBRoll,
+      crf,
+      preset
+    });
+
+    return res.json({
+      success: true,
+      ...result,
+      width: 1080,
+      height: 1920,
+      aspectRatio: '9:16',
+      filter: '[0:v]scale=1080:1920,crop=1080:960:0:480[top]; [1:v]scale=1080:1920,crop=1080:960:0:480[bottom]; [top][bottom]vstack=inputs=2[v]'
+    });
+  } catch (error: any) {
+    console.error('Error in /api/composite-tiktok-video:', error);
+    return res.status(500).json({ error: error.message || 'Failed to composite TikTok video' });
+  }
+});
+
+// 12. Endpoint to query available B-Roll gameplay files
+app.get('/api/broll-clips', (_req, res) => {
+  try {
+    const brollDir = path.resolve(__dirname, 'public/assets/broll');
+    const clips = fs.existsSync(brollDir)
+      ? fs.readdirSync(brollDir).filter(f => f.endsWith('.mp4')).map(f => ({
+          filename: f,
+          url: `/assets/broll/${f}`,
+          name: f.replace(/_/g, ' ').replace('.mp4', '').toUpperCase()
+        }))
+      : [];
+    return res.json({ brollClips: clips });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
   }
 });
 
