@@ -117,6 +117,7 @@ export interface Scene {
   overlayBadge: string;
   emojiAccent: string;
   characterEmotion?: CharacterEmotion;
+  videoUrl?: string; // Real full-motion video clip (e.g. uploaded MP4 or rendered video)
   dialogueSpeaker?: string;
   audioUrl?: string; // Generated TTS audio
   words?: { word: string; start: number; end: number }[];
@@ -160,6 +161,8 @@ export interface Project {
   scenes: Scene[];
   characterName?: string;
   characterAvatar?: string;
+  showCartoonAvatar?: boolean; // When false, suppresses cartoon character drawing on screen
+  activeVideoUrl?: string; // Real full-motion MP4 video playing on preview screen
   realHumanMode?: boolean;
   actorPersona?: string;
   autoCaptionsEnabled?: boolean;

@@ -19,41 +19,47 @@ export function parseAnyPromptToVideo(
   const cleanText = promptText.trim();
   const lower = cleanText.toLowerCase();
 
-  // Smart Format Detection
-  let format: VideoFormat = options.format || 'viral_facts';
-  if (!options.format) {
-    if (
-      lower.includes('real human') ||
-      lower.includes('real person') ||
-      lower.includes('human video') ||
-      lower.includes('real actor') ||
-      lower.includes('actress') ||
-      lower.includes('ugc') ||
-      lower.includes('influencer') ||
-      lower.includes('talking head') ||
-      lower.includes('podcast host') ||
-      lower.includes('vlog')
-    ) {
-      format = 'real_human';
-    } else if (
-      lower.includes('pineapple') ||
-      lower.includes('grape') ||
-      lower.includes('fruit') ||
-      lower.includes('vegetable') ||
-      lower.includes('halastory') ||
-      lower.includes('telenovela') ||
-      lower.includes('pepper') ||
-      lower.includes('carrot') ||
-      lower.includes('soap opera')
-    ) {
-      format = 'fruit_drama';
-    } else if (lower.includes('cartoon') || lower.includes('animation') || lower.includes('dragon') || lower.includes('fairy') || lower.includes('kid')) {
-      format = 'cartoon_story';
-    } else if (lower.includes('horror') || lower.includes('ghost') || lower.includes('scary') || lower.includes('haunt') || lower.includes('mystery')) {
-      format = 'conspiracy_mystery';
-    } else if (lower.includes('reddit') || lower.includes('confess') || lower.includes('aita') || lower.includes('my boss') || lower.includes('storytime')) {
-      format = 'reddit_story';
-    }
+  // Smart Format Detection: user prompt intent takes precedence
+  let format: VideoFormat = 'viral_facts';
+  if (
+    lower.includes('real human') ||
+    lower.includes('human') ||
+    lower.includes('person') ||
+    lower.includes('actor') ||
+    lower.includes('actress') ||
+    lower.includes('ugc') ||
+    lower.includes('influencer') ||
+    lower.includes('talking head') ||
+    lower.includes('podcast host') ||
+    lower.includes('vlog')
+  ) {
+    format = 'real_human';
+  } else if (
+    lower.includes('pineapple') ||
+    lower.includes('grape') ||
+    lower.includes('fruit drama') ||
+    lower.includes('halastory') ||
+    lower.includes('telenovela')
+  ) {
+    format = 'fruit_drama';
+  } else if (
+    lower.includes('cartoon') ||
+    lower.includes('animated story') ||
+    lower.includes('pixar animation')
+  ) {
+    format = 'cartoon_story';
+  } else if (
+    lower.includes('horror') ||
+    lower.includes('ghost') ||
+    lower.includes('scary') ||
+    lower.includes('haunt') ||
+    lower.includes('mystery')
+  ) {
+    format = 'conspiracy_mystery';
+  } else if (lower.includes('reddit') || lower.includes('confess') || lower.includes('aita')) {
+    format = 'reddit_story';
+  } else if (options.format && options.format !== 'cartoon_story' && options.format !== 'fruit_drama') {
+    format = options.format;
   }
 
   const isFruitDrama = format === 'fruit_drama';
@@ -192,9 +198,10 @@ export function parseAnyPromptToVideo(
     hashtags,
     format,
     tone,
-    cartoonStyle: isFruitDrama ? 'fruit_3d' : isCartoon ? 'pixar_3d' : isRealHuman ? 'real_human' : undefined,
+    cartoonStyle: isFruitDrama ? 'fruit_3d' : isCartoon ? 'pixar_3d' : 'real_human',
     characterName: isFruitDrama ? 'Miss Pineapple' : isCartoon ? 'Sir Reginald' : isRealHuman ? 'Sarah Jenkins' : undefined,
-    characterAvatar: isFruitDrama ? 'pineapple_bride' : isCartoon ? 'sir_reginald' : isRealHuman ? 'sarah_creator' : undefined,
+    characterAvatar: isFruitDrama ? 'pineapple_bride' : isCartoon ? 'sir_reginald' : undefined,
+    showCartoonAvatar: isCartoon,
     realHumanMode: isRealHuman,
     actorPersona: isRealHuman ? 'Sarah Jenkins (UGC Creator)' : undefined,
     // Real human and fruit drama videos fill the full 9:16 frame; split-screen for facts

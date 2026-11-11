@@ -291,7 +291,9 @@ export const PRESET_PROJECTS: Project[] = [
     voiceVolume: 0.98,
     voiceSpeaker: 'Kore',
     characterName: 'Sarah Jenkins',
-    characterAvatar: 'sarah_creator',
+    characterAvatar: undefined,
+    showCartoonAvatar: false,
+    activeVideoUrl: '/assets/aistudio/432b05e8bf95422a4b41e99d1974ad8e_c99ffe77.mp4',
     splitScreenMode: false,
     scenes: [
       {

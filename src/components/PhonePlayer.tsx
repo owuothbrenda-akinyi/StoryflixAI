@@ -41,11 +41,36 @@ export const PhonePlayer: React.FC<PhonePlayerProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rendererRef = useRef<CanvasRenderer | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+
+  // Sync video play/pause
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.play().catch(() => {});
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [isPlaying]);
+
+  // Sync video scrubbing time
+  useEffect(() => {
+    if (videoRef.current && Number.isFinite(currentTime)) {
+      const dur = videoRef.current.duration;
+      if (dur > 0) {
+        const target = currentTime % dur;
+        if (Math.abs(videoRef.current.currentTime - target) > 0.4) {
+          videoRef.current.currentTime = target;
+        }
+      }
+    }
+  }, [currentTime]);
 
   // Calculate total duration
   const totalDuration = project.scenes.reduce((acc, s) => acc + s.durationSec, 0);
@@ -275,32 +300,61 @@ export const PhonePlayer: React.FC<PhonePlayerProps> = ({
 
   return (
     <div className="flex flex-col items-center justify-center h-full p-2 sm:p-4 select-none">
-      {/* Visual Format Toggle: AI Movie Mode vs Split-Screen B-Roll Mode */}
+      {/* Visual Format Toggle: Real Video vs Split-Screen B-Roll vs Cinema Stills */}
       <div className="flex flex-wrap items-center justify-center gap-1.5 p-1 bg-zinc-900/90 border border-zinc-800 rounded-2xl mb-3 shadow-lg">
+        {/* Real Creator Video Button */}
         <button
-          onClick={() => onUpdateProject?.({ splitScreenMode: false })}
+          onClick={() =>
+            onUpdateProject?.({
+              activeVideoUrl: '/assets/aistudio/432b05e8bf95422a4b41e99d1974ad8e_c99ffe77.mp4',
+              realHumanMode: true,
+              showCartoonAvatar: false,
+              format: 'real_human'
+            })
+          }
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-            !project.splitScreenMode
+            project.activeVideoUrl
+              ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md'
+              : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+          }`}
+          title="Play Full-Motion Real Human Creator Video (Uploaded MP4)"
+        >
+          <Film className="w-3.5 h-3.5" />
+          <span>👤 Real Video</span>
+        </button>
+
+        {/* Full Cinema Stills */}
+        <button
+          onClick={() =>
+            onUpdateProject?.({
+              activeVideoUrl: undefined,
+              splitScreenMode: false,
+              showCartoonAvatar: false
+            })
+          }
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            !project.splitScreenMode && !project.activeVideoUrl
               ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-md'
               : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
           }`}
           title="Full 9:16 Cinematic AI Movie & Visual Story"
         >
           <Film className="w-3.5 h-3.5" />
-          <span>Full Cinema Movie</span>
+          <span>🖼️ AI Cinema</span>
         </button>
 
+        {/* Split Screen Button */}
         <button
-          onClick={() => onUpdateProject?.({ splitScreenMode: true })}
+          onClick={() => onUpdateProject?.({ splitScreenMode: !project.splitScreenMode })}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             project.splitScreenMode
               ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-md'
               : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
           }`}
-          title="Viral TikTok/Shorts Split-Screen (AI Story on Top, Parkour B-Roll on Bottom)"
+          title="Viral TikTok/Shorts Split-Screen (AI Story / Video on Top, Parkour B-Roll on Bottom)"
         >
           <Layers className="w-3.5 h-3.5" />
-          <span>Split-Screen B-Roll</span>
+          <span>⚡ Split 1080:960</span>
         </button>
 
         {project.splitScreenMode && (
@@ -313,10 +367,26 @@ export const PhonePlayer: React.FC<PhonePlayerProps> = ({
             }
             className="bg-zinc-950 border border-zinc-700 text-amber-300 rounded-xl px-2 py-1 text-[11px] font-bold focus:outline-none cursor-pointer"
           >
-            <option value="minecraft_parkour">🧱 Minecraft Parkour</option>
-            <option value="neon_grid">🌆 Neon Synthwave Grid</option>
-            <option value="satisfying_sand">🌀 Kinetic Rainbow Sand</option>
+            <option value="minecraft_parkour">🧱 Minecraft</option>
+            <option value="subway_surfer">🛹 Subway Surfer</option>
+            <option value="gta_ramp">🏎️ GTA Ramp</option>
+            <option value="satisfying_sand">🧼 ASMR Sand</option>
           </select>
+        )}
+
+        {/* Toy Avatar Toggle (if cartoon format or avatar exists) */}
+        {(project.format === 'cartoon_story' || project.format === 'fruit_drama' || project.characterAvatar) && (
+          <button
+            onClick={() => onUpdateProject?.({ showCartoonAvatar: !project.showCartoonAvatar })}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              project.showCartoonAvatar
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                : 'bg-zinc-800 text-zinc-400 hover:text-white'
+            }`}
+            title="Toggle Cartoon Character Toy graphic on screen"
+          >
+            <span>🧸 Toy Avatar: {project.showCartoonAvatar ? 'ON' : 'OFF'}</span>
+          </button>
         )}
       </div>
 
@@ -335,10 +405,28 @@ export const PhonePlayer: React.FC<PhonePlayerProps> = ({
 
           {/* Internal 9:16 Canvas Viewport */}
           <div className="relative w-full h-full rounded-[32px] overflow-hidden bg-black flex items-center justify-center">
+            {/* Real Full-Motion Video Stream */}
+            {project.activeVideoUrl && (
+              <div
+                className={`absolute inset-x-0 top-0 overflow-hidden ${
+                  project.splitScreenMode ? 'h-1/2' : 'h-full'
+                }`}
+              >
+                <video
+                  ref={videoRef}
+                  src={project.activeVideoUrl}
+                  playsInline
+                  loop
+                  muted={isMuted}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+
             <canvas
               ref={canvasRef}
               onClick={handleTogglePlay}
-              className="w-full h-full object-cover cursor-pointer"
+              className="relative z-10 w-full h-full object-cover cursor-pointer"
             />
 
             {/* Play/Pause Overlay Indicator on Click */}

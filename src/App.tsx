@@ -301,10 +301,16 @@ export default function App() {
               setProject((prev) => ({
                 ...prev,
                 ...generated,
+                characterAvatar: generated.characterAvatar || undefined,
+                characterName: generated.characterName || undefined,
+                showCartoonAvatar: generated.showCartoonAvatar || false,
+                activeVideoUrl: generated.realHumanMode
+                  ? '/assets/aistudio/432b05e8bf95422a4b41e99d1974ad8e_c99ffe77.mp4'
+                  : undefined,
                 id: `proj_${Date.now()}`
               } as Project));
               setSelectedSceneIndex(0);
-              showToast(`🎬 TikTok video generated from prompt! (${generated.scenes?.length || 3} scenes)`);
+              showToast(`🎬 Video generated from prompt! (${generated.scenes?.length || 3} scenes)`);
             }}
             className="w-full max-w-[360px] sm:max-w-[460px] mb-3 flex items-center gap-2 bg-zinc-900/90 border border-zinc-800 rounded-2xl p-1.5 shadow-xl backdrop-blur-md focus-within:border-violet-500/80 transition-all"
           >
@@ -312,7 +318,7 @@ export default function App() {
               type="text"
               value={quickPrompt}
               onChange={(e) => setQuickPrompt(e.target.value)}
-              placeholder="Prompt any TikTok idea (e.g. haunted hotel, supercars, pyramids, deep sea)..."
+              placeholder="Prompt any TikTok idea (e.g. real human vlog, supercars, luxury penthouse, deep sea)..."
               className="flex-1 bg-transparent px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none"
             />
             <button
@@ -320,7 +326,7 @@ export default function App() {
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-violet-600 via-rose-500 to-amber-500 text-white shadow-md shadow-rose-500/25 hover:brightness-110 active:scale-95 transition-all cursor-pointer shrink-0"
             >
               <Video className="w-3.5 h-3.5" />
-              <span>Generate TikTok Video</span>
+              <span>Generate Video</span>
             </button>
           </form>
 

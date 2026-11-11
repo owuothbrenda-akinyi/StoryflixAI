@@ -23,7 +23,7 @@ export class CanvasRenderer {
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
-    this.ctx = canvas.getContext('2d', { alpha: false })!;
+    this.ctx = canvas.getContext('2d', { alpha: true })!;
     this.canvas.width = CanvasRenderer.WIDTH;
     this.canvas.height = CanvasRenderer.HEIGHT;
   }
@@ -160,12 +160,13 @@ export class CanvasRenderer {
 
     ctx.restore(); // Restore camera transform for stable UI overlays
 
-    // 3. Draw Cartoon Character (if cartoon format or avatar enabled, and not in real human mode)
-    if (
-      (project.format === 'cartoon_story' || project.characterAvatar) &&
-      project.format !== 'real_human' &&
-      !project.realHumanMode
-    ) {
+    // 3. Draw Cartoon Character ONLY when explicitly in cartoon/fruit drama format and not suppressed
+    const shouldDrawCartoon =
+      (project.format === 'cartoon_story' || project.format === 'fruit_drama') &&
+      project.showCartoonAvatar !== false &&
+      !project.realHumanMode;
+
+    if (shouldDrawCartoon) {
       this.drawCartoonCharacter(scene, sceneProgress, totalTime, project);
     } else if (project.format === 'real_human' || project.realHumanMode) {
       this.drawRealHumanCreatorHUD(project, totalTime);
@@ -211,7 +212,12 @@ export class CanvasRenderer {
       ctx.clip();
     }
 
-    this.drawSceneArt(scene, totalTime, progress, project, W, topH);
+    if (project.activeVideoUrl) {
+      // Clear the viewport area so the active real video plays cleanly underneath
+      ctx.clearRect(0, 0, W, topH);
+    } else {
+      this.drawSceneArt(scene, totalTime, progress, project, W, topH);
+    }
     ctx.restore();
 
     // If split-screen, draw dynamic satisfying B-roll on bottom half
